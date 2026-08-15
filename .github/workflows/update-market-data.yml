@@ -1,0 +1,42 @@
+name: Update Market Data
+
+# GitHub Actions cron can lag several minutes - fine for daily data
+# Runs Monday-Friday at market close (3:45 PM IST = 10:15 AM UTC)
+on:
+  schedule:
+    - cron: '15 10 * * 1-5'  # Mon-Fri at 10:15 AM UTC (3:45 PM IST)
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm install
+          
+      - name: Update F&O Ban List
+        run: node scripts/fetch-ban-list.js
+        
+      - name: Update Lot Sizes
+        run: node scripts/fetch-lot-sizes.js
+        
+      - name: Update Market News
+        run: node scripts/fetch-market-news.js
+        
+      - name: Commit and push if changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/*.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update market data - $(date '+%Y-%m-%d %H:%M:%S')" && git push)

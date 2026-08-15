@@ -1,0 +1,59 @@
+{
+  "events": [
+    {
+      "date": "2026-07-15",
+      "time": "10:00",
+      "timezone": "IST",
+      "title": "RBI Monetary Policy Meeting",
+      "description": "Reserve Bank of India to announce policy decision and rate outlook",
+      "impact": "high",
+      "category": "monetary-policy"
+    },
+    {
+      "date": "2026-08-12",
+      "time": "17:30",
+      "timezone": "IST",
+      "title": "CPI Data Release",
+      "description": "Consumer Price Index for July 2026",
+      "impact": "high",
+      "category": "inflation"
+    },
+    {
+      "date": "2026-08-30",
+      "time": "17:30",
+      "timezone": "IST",
+      "title": "GDP Growth Data Q1 FY27",
+      "description": "Quarterly GDP growth figures for April-June 2026",
+      "impact": "high",
+      "category": "gdp"
+    },
+    {
+      "date": "2026-08-01",
+      "time": "00:00",
+      "timezone": "IST",
+      "title": "US Federal Reserve Meeting",
+      "description": "FOMC to announce interest rate decision",
+      "impact": "medium",
+      "category": "global"
+    },
+    {
+      "date": "2026-07-18",
+      "time": "15:30",
+      "timezone": "IST",
+      "title": "Manufacturing PMI",
+      "description": "Purchasing Managers' Index for manufacturing sector",
+      "impact": "low",
+      "category": "pmi"
+    },
+    {
+      "date": "2026-09-08",
+      "time": "10:00",
+      "timezone": "IST",
+      "title": "RBI Monetary Policy Meeting",
+      "description": "Reserve Bank of India bi-monthly policy review",
+      "impact": "high",
+      "category": "monetary-policy"
+    }
+  ],
+  "lastUpdated": "2026-07-14T10:30:00Z"
+}

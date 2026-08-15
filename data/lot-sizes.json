@@ -1,0 +1,70 @@
+{
+  "instruments": [
+    {
+      "symbol": "NIFTY",
+      "name": "Nifty 50",
+      "exchange": "NSE",
+      "type": "Index",
+      "lotSize": 65,
+      "previousLotSize": 75,
+      "updated": "2026-01-27",
+      "effectiveFrom": "2026-01-27"
+    },
+    {
+      "symbol": "BANKNIFTY",
+      "name": "Nifty Bank",
+      "exchange": "NSE",
+      "type": "Index",
+      "lotSize": 30,
+      "previousLotSize": 25,
+      "updated": "2026-01-27",
+      "effectiveFrom": "2026-01-27"
+    },
+    {
+      "symbol": "FINNIFTY",
+      "name": "Nifty Financial Services",
+      "exchange": "NSE",
+      "type": "Index",
+      "lotSize": 60,
+      "previousLotSize": 40,
+      "updated": "2026-01-27",
+      "effectiveFrom": "2026-01-27"
+    },
+    {
+      "symbol": "MIDCPNIFTY",
+      "name": "Nifty Midcap Select",
+      "exchange": "NSE",
+      "type": "Index",
+      "lotSize": 120,
+      "previousLotSize": 120,
+      "updated": "2025-10-28",
+      "effectiveFrom": "2025-10-28"
+    }
+  ],
+  "recentChanges": [
+    {
+      "symbol": "NIFTY",
+      "oldSize": 75,
+      "newSize": 65,
+      "effectiveDate": "2026-01-27",
+      "changePercent": -13.33
+    },
+    {
+      "symbol": "BANKNIFTY",
+      "oldSize": 25,
+      "newSize": 30,
+      "effectiveDate": "2026-01-27",
+      "changePercent": 20
+    },
+    {
+      "symbol": "FINNIFTY",
+      "oldSize": 40,
+      "newSize": 60,
+      "effectiveDate": "2026-01-27",
+      "changePercent": 50
+    }
+  ],
+  "lastUpdated": "2026-07-14T09:15:00Z",
+  "source": "NSE Contract Files",
+  "note": "Synced from NSE official contract specifications"
+}

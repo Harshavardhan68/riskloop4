@@ -1,0 +1,47 @@
+{
+  "articles": [
+    {
+      "title": "Nifty 50 hits all-time high as banking stocks surge",
+      "excerpt": "Banking and financial stocks led the rally with HDFC Bank and ICICI Bank gaining over 3% each in today's trading session.",
+      "category": "market",
+      "source": "Economic Times",
+      "publishedAt": "2026-07-14T12:30:00Z",
+      "url": "https://economictimes.com/example"
+    },
+    {
+      "title": "RBI maintains repo rate at 6.5%, keeps stance accommodative",
+      "excerpt": "The Monetary Policy Committee decided to keep the policy repo rate unchanged in its latest meeting, focusing on growth support.",
+      "category": "rbi",
+      "source": "Business Standard",
+      "publishedAt": "2026-07-14T10:00:00Z",
+      "url": "https://business-standard.com/example"
+    },
+    {
+      "title": "SEBI introduces new regulations for algorithmic trading",
+      "excerpt": "Market regulator SEBI announced stricter norms for algo trading to enhance market stability and protect retail investors.",
+      "category": "sebi",
+      "source": "Mint",
+      "publishedAt": "2026-07-14T08:15:00Z",
+      "url": "https://livemint.com/example"
+    },
+    {
+      "title": "TCS reports 8% YoY growth in Q4 earnings",
+      "excerpt": "Tata Consultancy Services announced strong quarterly results with revenue growth across all segments and improved margins.",
+      "category": "earnings",
+      "source": "Moneycontrol",
+      "publishedAt": "2026-07-13T16:00:00Z",
+      "url": "https://moneycontrol.com/example"
+    },
+    {
+      "title": "XYZ Tech IPO subscribed 15x on Day 2",
+      "excerpt": "The initial public offering saw overwhelming response from retail and institutional investors, with QIB portion fully subscribed.",
+      "category": "ipo",
+      "source": "Bloomberg Quint",
+      "publishedAt": "2026-07-13T14:30:00Z",
+      "url": "https://bloombergquint.com/example"
+    }
+  ],
+  "lastUpdated": "2026-07-14T14:00:00Z",
+  "source": "RSS Feed Aggregation",
+  "note": "Converted from RSS feeds by GitHub Actions on schedule"
+}

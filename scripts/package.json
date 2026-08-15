@@ -1,0 +1,15 @@
+{
+  "name": "riskloop-data-updater",
+  "version": "1.0.0",
+  "description": "Scripts to fetch and update market data for RiskLoop",
+  "scripts": {
+    "fetch-news": "node fetch-market-news.js",
+    "fetch-ban-list": "node fetch-ban-list.js",
+    "fetch-lot-sizes": "node fetch-lot-sizes.js"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0",
+    "node-fetch": "^2.7.0"
+  },
+  "type": "module"
+}

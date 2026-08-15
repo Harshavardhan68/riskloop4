@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RiskLoop — F&amp;O Position Sizing Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="dark">
+
+  <div class="kavach-root">
+
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-mark">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+          </div>
+          <div class="brand-text">
+            <h1>RiskLoop</h1>
+            <p class="brand-tagline">Risk Management & Position Sizing Platform</p>
+          </div>
+        </div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch to light mode">
+          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+
+      <!-- Journal-only nav bar (visible only when journal-mode is active) -->
+      <div class="journal-nav-bar" id="journalNavBar">
+        <button class="journal-exit-btn" id="journalExitBtn" aria-label="Back to full navigation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+          Back
+        </button>
+        <a href="#journal" class="journal-tab-solo" aria-current="page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Journal
+        </a>
+      </div>
+
+      <div class="header-nav">
+        <nav class="nav-tabs" id="mainNav">
+          <!-- Calculator Dropdown -->
+          <div class="nav-dropdown" id="calculatorDropdown">
+            <button class="nav-tab nav-tab-dropdown" id="calculatorDropdownBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+              <span>Calculator</span>
+              <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="dropdown-menu" id="calculatorDropdownMenu">
+              <a href="#calculator-stock" class="dropdown-item" data-calc-type="stock">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>Stocks</span>
+              </a>
+              <a href="#calculator-fo" class="dropdown-item" data-calc-type="fo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>F&O</span>
+              </a>
+              <a href="#calculator-forex" class="dropdown-item" data-calc-type="forex">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>Forex</span>
+              </a>
+              <a href="#calculator-crypto" class="dropdown-item" data-calc-type="crypto">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.139-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727"/></svg>
+                <span>Crypto</span>
+              </a>
+            </div>
+          </div>
+
+          <a href="#market" class="nav-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <span>Market</span>
+          </a>
+          <a href="#journal" class="nav-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Journal</span>
+          </a>
+          <a href="#portfolio" class="nav-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <span>Portfolio</span>
+          </a>
+          <a href="#strategies" class="nav-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <span>Strategies</span>
+          </a>
+          <a href="#about" class="nav-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span>About</span>
+          </a>
+        </nav>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+          <svg class="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Remove the old sub-navigation -->
+    
+
+    <!-- HOME PAGE -->
+    <div class="page-container" id="homePage" hidden>
+      <div class="page-hero">
+        <h1 class="page-title">Welcome to RiskLoop</h1>
+        <p class="page-subtitle">Your Professional Risk Management Dashboard</p>
+      </div>
+      <div class="coming-soon-card">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        <h2>Dashboard Coming Soon</h2>
+        <p>Quick actions, recent calculations, and market overview will be available here.</p>
+      </div>
+    </div>
+
+    <!-- MARKET PAGE -->
+    <div class="page-container" id="marketPage" hidden>
+      <!-- Market Type Tabs -->
+      <div class="market-tabs" id="marketTabs">
+        <button class="market-tab market-tab-active" id="indiaTab" data-market="india">
+          🇮🇳 India
+        </button>
+        <button class="market-tab" id="forexTab" data-market="forex">
+          🌎 Forex
+        </button>
+      </div>
+
+      <!-- Indian Market Content Wrapper -->
+      <div class="indian-market-wrapper" id="indianMarketWrapper">
+
+        <!-- Economic Calendar (India) Section -->
+        <section class="market-section" id="economicCalendarIndiaSection">
+          <div class="section-header">
+            <h2 class="section-heading">Economic Calendar (India)</h2>
+            <div class="calendar-nav">
+              <button class="calendar-nav-btn" id="calendarPrevBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <span class="calendar-nav-date" id="calendarNavDate">Today</span>
+              <button class="calendar-nav-btn" id="calendarNextBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Period Tabs -->
+          <div class="calendar-period-tabs" id="calendarPeriodTabs">
+            <button class="calendar-tab calendar-tab-active" data-period="today">Today</button>
+            <button class="calendar-tab" data-period="tomorrow">Tomorrow</button>
+            <button class="calendar-tab" data-period="week">This Week</button>
+          </div>
+
+          <!-- Calendar Table -->
+          <div class="calendar-table-wrapper">
+            <table class="calendar-table" id="calendarTable">
+              <thead>
+                <tr>
+                  <th class="cal-col-date">Date</th>
+                  <th class="cal-col-time">Time (IST)</th>
+                  <th class="cal-col-event">Event</th>
+                  <th class="cal-col-country">Country</th>
+                  <th class="cal-col-impact">Impact</th>
+                  <th class="cal-col-previous">Previous</th>
+                  <th class="cal-col-forecast">Forecast</th>
+                  <th class="cal-col-actual">Actual</th>
+                </tr>
+              </thead>
+              <tbody id="calendarTableBody">
+                <!-- Populated by JavaScript -->
+                <tr>
+                  <td colspan="8" class="calendar-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading economic events...</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-action">
+            <button class="view-all-btn" id="viewAllCalendarBtn">
+              <span>View all</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- Trading Sessions Timeline Section -->
+        <section class="market-section" id="tradingSessionsSection">
+          <div class="section-header">
+            <h2 class="section-heading">Trading Sessions</h2>
+            <div class="sessions-header-right">
+              <span class="sessions-clock" id="sessionsClock">—</span>
+              <span class="sessions-date" id="sessionsDate">—</span>
+            </div>
+          </div>
+
+          <!-- Sessions Timeline -->
+          <div class="sessions-timeline-card" id="sessionsTimelineCard">
+            <div class="sessions-timeline-wrapper" id="sessionsTimelineWrapper">
+              
+              <!-- Time axis starting from 9:00 AM -->
+              <div class="sessions-axis-row" id="sessionsAxisRow">
+                <div class="sessions-label-col"></div>
+                <div class="sessions-axis" id="sessionsAxis">
+                  <span style="position: absolute; left: 0%;">9:00</span>
+                  <span style="position: absolute; left: 25%;">12:00</span>
+                  <span style="position: absolute; left: 50%;">15:00</span>
+                  <span style="position: absolute; left: 75%;">18:00</span>
+                  <span style="position: absolute; right: 0%;">23:30</span>
+                </div>
+              </div>
+
+              <!-- Session rows -->
+              <div class="sessions-rows" id="sessionsRows"></div>
+
+              <!-- Current time indicator -->
+              <div class="sessions-current-time" id="sessionsCurrentTime" hidden>
+                <div class="sessions-time-line"></div>
+                <div class="sessions-time-label">Current Time</div>
+              </div>
+
+            </div>
+
+            <!-- Legend -->
+            <div class="sessions-legend">
+              <div class="legend-item">
+                <div class="legend-color legend-open"></div>
+                <span>Green = Open</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color legend-closed"></div>
+                <span>Gray = Closed</span>
+              </div>
+            </div>
+
+            <!-- Non-trading day banner -->
+            <div class="sessions-closed-banner" id="sessionsClosedBanner" hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <div>
+                <div class="sessions-closed-title" id="sessionsClosedTitle">Markets Closed</div>
+                <div class="sessions-closed-sub" id="sessionsClosedSub">Non-trading day</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Two Column Layout -->
+        <div class="indian-market-content">
+          
+          <!-- Left Column - Wider for Top Movers -->
+          <div class="indian-market-main">
+            
+            <!-- Top Movers Today Section -->
+            <section class="market-section">
+              <div class="section-header">
+                <h2 class="section-heading">Top Movers Today</h2>
+              </div>
+              
+              <!-- Gainers/Losers Tabs -->
+              <div class="movers-tabs" id="moversTabs">
+                <button class="movers-tab movers-tab-active" data-type="gainers">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                  Gainers
+                </button>
+                <button class="movers-tab" data-type="losers">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  Losers
+                </button>
+              </div>
+
+              <!-- Movers Table -->
+              <div class="movers-table-wrapper">
+                <table class="movers-table" id="moversTable">
+                  <thead>
+                    <tr>
+                      <th class="movers-col-company">Company</th>
+                      <th class="movers-col-chart">Intraday</th>
+                      <th class="movers-col-price">Market Price (1D)</th>
+                      <th class="movers-col-change">1D Change %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="moversTableBody">
+                    <!-- Populated by JavaScript -->
+                    <tr>
+                      <td colspan="4" class="movers-loading">
+                        <div class="loading-spinner"></div>
+                        <span>Loading market data...</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="section-action">
+                <button class="view-all-btn" id="viewAllMoversBtn">
+                  <span id="viewAllMoversText">View all gainers</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </section>
+
+            <!-- Sectors Trending Today Section -->
+            <section class="market-section">
+              <div class="section-header">
+                <h2 class="section-heading">Sectors Trending Today</h2>
+              </div>
+
+              <div class="sectors-list" id="sectorsList">
+                <!-- Populated by JavaScript -->
+                <div class="sectors-loading">
+                  <div class="loading-spinner"></div>
+                  <span>Loading sector data...</span>
+                </div>
+              </div>
+
+              <div class="section-action">
+                <button class="view-all-btn" id="viewAllSectorsBtn">
+                  <span>See all sectors</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </section>
+
+          </div><!-- /.indian-market-main -->
+
+          <!-- Right Column - Positioned alongside Top Movers -->
+          <div class="indian-market-sidebar">
+            
+            <!-- Products & Tools Section - Moved lower to align with Top Movers -->
+            <section class="sidebar-section">
+              <h3 class="sidebar-heading">Products & Tools</h3>
+              
+              <div class="products-grid">
+                <a href="#ipo" class="product-card">
+                  <div class="product-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  </div>
+                  <div class="product-content">
+                    <div class="product-title">IPO</div>
+                    <div class="product-desc">View upcoming and open IPOs</div>
+                  </div>
+                </a>
+
+                <a href="#bonds" class="product-card">
+                  <div class="product-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                  </div>
+                  <div class="product-content">
+                    <div class="product-title">Bonds</div>
+                    <div class="product-desc">Explore government and corporate bonds</div>
+                  </div>
+                </a>
+
+                <a href="#dividend" class="product-card">
+                  <div class="product-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </div>
+                  <div class="product-content">
+                    <div class="product-title">Dividend</div>
+                    <div class="product-desc">Upcoming dividend and dividend history</div>
+                  </div>
+                </a>
+
+                <a href="#undervalued" class="product-card">
+                  <div class="product-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/><circle cx="19" cy="9" r="2"/></svg>
+                  </div>
+                  <div class="product-content">
+                    <div class="product-title">Undervalued Stocks</div>
+                    <div class="product-desc">Find fundamentally undervalued stocks</div>
+                  </div>
+                </a>
+              </div>
+            </section>
+
+            <!-- Stocks in News Today Section -->
+            <section class="sidebar-section">
+              <div class="sidebar-header">
+                <h3 class="sidebar-heading">Stocks in News Today</h3>
+              </div>
+
+              <div class="stocks-news-list" id="stocksNewsList">
+                <!-- Populated by JavaScript -->
+                <div class="stocks-news-loading">
+                  <div class="loading-spinner"></div>
+                  <span>Loading news...</span>
+                </div>
+              </div>
+
+              <div class="sidebar-action">
+                <button class="view-all-btn-small" id="viewAllStocksNewsBtn">
+                  <span>View all</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </section>
+
+            <!-- F&O Update Section -->
+            <section class="sidebar-section">
+              <div class="sidebar-header">
+                <h3 class="sidebar-heading">F&O Update</h3>
+              </div>
+
+              <div class="fo-update-list" id="foUpdateList">
+                <!-- Populated by JavaScript -->
+                <div class="fo-update-loading">
+                  <div class="loading-spinner"></div>
+                  <span>Loading F&O data...</span>
+                </div>
+              </div>
+
+              <div class="sidebar-action">
+                <button class="view-all-btn-small" id="viewAllFOBtn">
+                  <span>View all</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </section>
+
+            <!-- Earnings This Week Section -->
+            <section class="sidebar-section">
+              <div class="sidebar-header">
+                <h3 class="sidebar-heading">Earnings This Week</h3>
+              </div>
+
+              <div class="earnings-list" id="earningsList">
+                <!-- Populated by JavaScript -->
+                <div class="earnings-loading">
+                  <div class="loading-spinner"></div>
+                  <span>Loading earnings...</span>
+                </div>
+              </div>
+
+              <div class="sidebar-action">
+                <button class="view-all-btn-small" id="viewAllEarningsBtn">
+                  <span>View all</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </section>
+
+          </div><!-- /.indian-market-sidebar -->
+
+        </div><!-- /.indian-market-content -->
+      </div><!-- /.indian-market-wrapper -->
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+    <!-- CALCULATOR PAGE (Position Size Calculator) -->
+    <div class="calculator-page-wrapper" id="calculatorPage" hidden>
+      
+      <!-- Stock Calculator -->
+      <main class="layout calculator-content" id="stockCalculator" hidden>
+        <!-- ORDER TICKET / INPUT PANEL -->
+        <section class="panel input-panel" aria-labelledby="stock-ticket-title">
+          <h2 id="stock-ticket-title" class="panel-title">Order Ticket</h2>
+          <p class="panel-sub">Fill in your trade parameters for stock position sizing.</p>
+
+          <!-- Instrument searchable combobox -->
+          <div class="field" id="stockInstrumentField">
+            <label for="stock-instrument-search" class="field-label">Stock <span class="req">*</span></label>
+            <div class="combo" id="stockComboWrap">
+              <svg class="combo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input
+                id="stock-instrument-search"
+                role="combobox"
+                aria-expanded="false"
+                aria-controls="stock-instrument-listbox"
+                aria-autocomplete="list"
+                autocomplete="off"
+                placeholder="Search RELIANCE, TCS, HDFCBANK…"
+                class="combo-input"
+              />
+              <span class="combo-badge" id="stockComboBadge" hidden></span>
+              <svg class="combo-chevron" id="stockComboChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <ul id="stock-instrument-listbox" role="listbox" class="combo-list" hidden></ul>
+            <p class="field-error-msg" id="stock-instrument-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Account size -->
+          <div class="field">
+            <label for="stock-account-size" class="field-label">Account size <span class="req">*</span></label>
+            <div class="num-wrap" id="stockAccountWrap">
+              <span class="num-affix">₹</span>
+              <input id="stock-account-size" type="number" inputmode="decimal" min="0" step="any" placeholder="5,00,000" class="num-input" />
+            </div>
+            <p class="field-error-msg" id="stock-account-size-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Risk percentage -->
+          <div class="field">
+            <label for="stock-risk-pct" class="field-label">Risk percentage <span class="req">*</span></label>
+            <div class="num-wrap" id="stockRiskWrap">
+              <input id="stock-risk-pct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="1" class="num-input" />
+              <span class="num-affix num-affix-right">%</span>
+            </div>
+            <p class="field-error-msg" id="stock-risk-pct-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Risk per share -->
+          <div class="field">
+            <label for="stock-stop-loss" class="field-label">Risk per share (₹) <span class="req">*</span></label>
+            <div class="num-wrap" id="stockStopWrap">
+              <span class="num-affix">₹</span>
+              <input id="stock-stop-loss" type="number" inputmode="decimal" min="0" step="any" placeholder="50" class="num-input" />
+            </div>
+            <p class="field-error-msg" id="stock-stop-loss-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Trade Type -->
+          <div class="field">
+            <label class="field-label">Trade type</label>
+            <div class="trade-type-pills">
+              <label class="trade-pill">
+                <input type="radio" name="stock-trade-type" id="stock-trade-delivery" value="delivery" checked />
+                <span>Delivery</span>
+              </label>
+              <label class="trade-pill">
+                <input type="radio" name="stock-trade-type" id="stock-trade-intraday" value="intraday" />
+                <span>Intraday</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="btn-primary" id="stockCalcBtn">Calculate shares</button>
+            <button class="btn-ghost" id="stockResetBtn">Reset</button>
+          </div>
+
+          <p class="hint" id="stockHint" hidden>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span id="stockHintText"></span>
+          </p>
+        </section>
+
+        <!-- RESULT / CONTRACT NOTE PANEL -->
+        <section class="panel result-panel" aria-live="polite" aria-labelledby="stock-result-title">
+          <h2 id="stock-result-title" class="panel-title">Position Summary</h2>
+          <p class="panel-sub">Your calculated stock position size.</p>
+
+          <div class="empty-state" id="stockEmptyState">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            <p>Fill the order ticket and press <b>Calculate shares</b> to see your sized position here.</p>
+          </div>
+
+          <div id="stockTicketContainer"></div>
+        </section>
+      </main>
+
+      <!-- F&O Calculator (Existing) -->
+      <main class="layout calculator-content" id="foCalculator" hidden>
+        <!-- ORDER TICKET / INPUT PANEL -->
+        <section class="panel input-panel" aria-labelledby="ticket-title">
+          <h2 id="ticket-title" class="panel-title">Order Ticket</h2>
+          <p class="panel-sub">Fill in your trade parameters. Only whole lots are ever returned.</p>
+
+          <!-- Instrument searchable combobox -->
+          <div class="field" id="instrumentField">
+            <label for="instrument-search" class="field-label">Instrument <span class="req">*</span></label>
+            <div class="combo" id="comboWrap">
+              <svg class="combo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input
+                id="instrument-search"
+                role="combobox"
+                aria-expanded="false"
+                aria-controls="instrument-listbox"
+                aria-autocomplete="list"
+                autocomplete="off"
+                placeholder="Search NIFTY, RELIANCE, BANKEX…"
+                class="combo-input"
+              />
+              <span class="combo-badge" id="comboBadge" hidden></span>
+              <svg class="combo-chevron" id="comboChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <ul id="instrument-listbox" role="listbox" class="combo-list" hidden></ul>
+            <p class="field-error-msg" id="instrument-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Account size -->
+          <div class="field">
+            <label for="account-size" class="field-label">Account size <span class="req">*</span></label>
+            <div class="num-wrap" id="accountWrap">
+              <span class="num-affix">₹</span>
+              <input id="account-size" type="number" inputmode="decimal" min="0" step="any" placeholder="5,00,000" class="num-input" />
+            </div>
+            <p class="field-error-msg" id="account-size-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Risk percentage -->
+          <div class="field">
+            <label for="risk-pct" class="field-label">Risk percentage <span class="req">*</span></label>
+            <div class="num-wrap" id="riskWrap">
+              <input id="risk-pct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="1" class="num-input" />
+              <span class="num-affix num-affix-right">%</span>
+            </div>
+            <p class="field-error-msg" id="risk-pct-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Stop loss -->
+          <div class="field">
+            <label for="stop-loss" class="field-label">Stop-loss <span class="req">*</span></label>
+            <div class="num-wrap" id="stopWrap">
+              <input id="stop-loss" type="number" inputmode="decimal" min="0" step="any" placeholder="40" class="num-input" />
+              <span class="num-affix num-affix-right">pts</span>
+            </div>
+            <p class="field-error-msg" id="stop-loss-error" role="alert" hidden></p>
+          </div>
+
+          <!-- Contract Type -->
+          <div class="field">
+            <label class="field-label">Contract type</label>
+            <div class="trade-type-pills">
+              <label class="trade-pill">
+                <input type="radio" name="fo-contract-type" id="fo-contract-futures" value="futures" checked />
+                <span>Futures</span>
+              </label>
+              <label class="trade-pill">
+                <input type="radio" name="fo-contract-type" id="fo-contract-options" value="options" />
+                <span>Options</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="btn-primary" id="calcBtn">Calculate lots</button>
+            <button class="btn-ghost" id="resetBtn">Reset</button>
+          </div>
+
+          <p class="hint" id="lotHint" hidden>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span id="lotHintText"></span>
+          </p>
+        </section>
+
+        <!-- RESULT / CONTRACT NOTE PANEL -->
+        <section class="panel result-panel" aria-live="polite" aria-labelledby="result-title">
+          <h2 id="result-title" class="panel-title">Contract Note</h2>
+          <p class="panel-sub">Your position size, sized to the rupee.</p>
+
+          <div class="empty-state" id="emptyState">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            <p>Fill the order ticket and press <b>Calculate lots</b> to see your sized position here.</p>
+          </div>
+
+          <div id="ticketContainer"></div>
+        </section>
+      </main>
+
+      <!-- Forex Calculator -->
+      <main class="layout calculator-content" id="forexCalculator" hidden>
+        <section class="panel input-panel" aria-labelledby="forex-ticket-title">
+          <h2 id="forex-ticket-title" class="panel-title">Order Ticket</h2>
+          <p class="panel-sub">Fill in your trade parameters for forex position sizing.</p>
+
+          <div class="field" id="forexInstrumentField">
+            <label for="forex-instrument-search" class="field-label">Pair / Instrument <span class="req">*</span></label>
+            <div class="combo" id="forexComboWrap">
+              <svg class="combo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="forex-instrument-search" role="combobox" aria-expanded="false" aria-controls="forex-instrument-listbox" aria-autocomplete="list" autocomplete="off" placeholder="Search EURUSD, XAUUSD, NAS100…" class="combo-input" />
+              <span class="combo-badge" id="forexComboBadge" hidden></span>
+              <svg class="combo-chevron" id="forexComboChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <ul id="forex-instrument-listbox" role="listbox" class="combo-list" hidden></ul>
+            <p class="field-error-msg" id="forex-instrument-error" role="alert" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="forex-account-size" class="field-label">Account size <span class="req">*</span></label>
+            <div class="num-wrap" id="forexAccountWrap">
+              <span class="num-affix">$</span>
+              <input id="forex-account-size" type="number" inputmode="decimal" min="0" step="any" placeholder="10,000" class="num-input" />
+            </div>
+            <p class="field-error-msg" id="forex-account-size-error" role="alert" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="forex-risk-pct" class="field-label">Risk percentage <span class="req">*</span></label>
+            <div class="num-wrap" id="forexRiskWrap">
+              <input id="forex-risk-pct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="1" class="num-input" />
+              <span class="num-affix num-affix-right">%</span>
+            </div>
+            <p class="field-error-msg" id="forex-risk-pct-error" role="alert" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="forex-stop-loss" class="field-label">Stop-loss (pips / points) <span class="req">*</span></label>
+            <div class="num-wrap" id="forexStopWrap">
+              <input id="forex-stop-loss" type="number" inputmode="decimal" min="0" step="any" placeholder="20" class="num-input" />
+              <span class="num-affix num-affix-right">pts</span>
+            </div>
+            <p class="field-error-msg" id="forex-stop-loss-error" role="alert" hidden></p>
+          </div>
+
+          <div class="button-row">
+            <button class="btn-primary" id="forexCalcBtn">Calculate size</button>
+            <button class="btn-ghost" id="forexResetBtn">Reset</button>
+          </div>
+
+          <p class="hint" id="forexHint" hidden>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span id="forexHintText"></span>
+          </p>
+        </section>
+
+        <section class="panel result-panel" aria-live="polite" aria-labelledby="forex-result-title">
+          <h2 id="forex-result-title" class="panel-title">Position Summary</h2>
+          <p class="panel-sub">Your calculated forex position size.</p>
+          <div class="empty-state" id="forexEmptyState">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            <p>Fill the order ticket and press <b>Calculate size</b> to see your sized position here.</p>
+          </div>
+          <div id="forexTicketContainer"></div>
+        </section>
+      </main>
+
+      <!-- Crypto Calculator -->
+      <main class="layout calculator-content" id="cryptoCalculator" hidden>
+        <section class="panel input-panel" aria-labelledby="crypto-ticket-title">
+          <h2 id="crypto-ticket-title" class="panel-title">Order Ticket</h2>
+          <p class="panel-sub">Fill in your trade parameters for crypto position sizing.</p>
+
+          <div class="field" id="cryptoInstrumentField">
+            <label for="crypto-instrument-search" class="field-label">Crypto Pair <span class="req">*</span></label>
+            <div class="combo" id="cryptoComboWrap">
+              <svg class="combo-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="crypto-instrument-search" role="combobox" aria-expanded="false" aria-controls="crypto-instrument-listbox" aria-autocomplete="list" autocomplete="off" placeholder="Search BTCUSD, ETHUSD, SOLUSD…" class="combo-input" />
+              <span class="combo-badge" id="cryptoComboBadge" hidden></span>
+              <svg class="combo-chevron" id="cryptoComboChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+            <ul id="crypto-instrument-listbox" role="listbox" class="combo-list" hidden></ul>
+            <p class="field-error-msg" id="crypto-instrument-error" role="alert" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="crypto-account-size" class="field-label">Account size <span class="req">*</span></label>
+            <div class="num-wrap" id="cryptoAccountWrap">
+              <span class="num-affix">$</span>
+              <input id="crypto-account-size" type="number" inputmode="decimal" min="0" step="any" placeholder="10,000" class="num-input" />
+            </div>
+            <p class="field-error-msg" id="crypto-account-size-error" role="alert" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="crypto-risk-pct" class="field-label">Risk percentage <span class="req">*</span></label>
+            <div class="num-wrap" id="cryptoRiskWrap">
+              <input id="crypto-risk-pct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="1" class="num-input" />
+              <span class="num-affix num-affix-right">%</span>
+            </div>
+            <p class="field-error-msg" id="crypto-risk-pct-error" role="alert" hidden></p>
+          </div>
+
+          <div class="field">
+            <label for="crypto-stop-loss" class="field-label">Stop-loss ($) <span class="req">*</span></label>
+            <div class="num-wrap" id="cryptoStopWrap">
+              <span class="num-affix">$</span>
+              <input id="crypto-stop-loss" type="number" inputmode="decimal" min="0" step="any" placeholder="500" class="num-input" />
+            </div>
+            <p class="field-error-msg" id="crypto-stop-loss-error" role="alert" hidden></p>
+          </div>
+
+          <div class="button-row">
+            <button class="btn-primary" id="cryptoCalcBtn">Calculate size</button>
+            <button class="btn-ghost" id="cryptoResetBtn">Reset</button>
+          </div>
+
+          <p class="hint" id="cryptoHint" hidden>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span id="cryptoHintText"></span>
+          </p>
+        </section>
+
+        <section class="panel result-panel" aria-live="polite" aria-labelledby="crypto-result-title">
+          <h2 id="crypto-result-title" class="panel-title">Position Summary</h2>
+          <p class="panel-sub">Your calculated crypto position size.</p>
+          <div class="empty-state" id="cryptoEmptyState">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            <p>Fill the order ticket and press <b>Calculate size</b> to see your sized position here.</p>
+          </div>
+          <div id="cryptoTicketContainer"></div>
+        </section>
+      </main>
+
+    </div>
+
+    <!-- STRATEGIES PAGE -->
+    <div class="page-container" id="strategiesPage" hidden>
+      <div class="page-hero">
+        <h1 class="page-title">Trading Strategies</h1>
+        <p class="page-subtitle">Strategy library and saved setups</p>
+      </div>
+      <div class="coming-soon-card">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <h2>Strategies Coming Soon</h2>
+        <p>Strategy library, saved strategies, and trading notes will be available here.</p>
+      </div>
+    </div>
+
+    <!-- PORTFOLIO PAGE -->
+    <div class="page-container" id="portfolioPage" hidden>
+      <div class="page-hero">
+        <h1 class="page-title">Portfolio</h1>
+        <p class="page-subtitle">Track holdings, performance, and analytics</p>
+      </div>
+      <div class="coming-soon-card">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <h2>Portfolio Tracker Coming Soon</h2>
+        <p>Holdings, performance metrics, P&L tracking, and analytics will be available here.</p>
+      </div>
+    </div>
+
+    <!-- JOURNAL PAGE -->
+    <div class="page-container journal-page" id="journalPage" hidden>
+
+    <!-- ── JOURNAL DASHBOARD VIEW ── -->
+    <div id="journalDashboard">
+
+      <!-- Hero -->
+      <div class="page-hero">
+        <h1 class="page-title">Trading Journal</h1>
+        <p class="page-subtitle">Track every trade. Understand every edge.</p>
+      </div>
+
+      <!-- Top section: Performance hero + 3 summary cards -->
+      <div class="journal-top-grid">
+
+        <!-- Left: Performance Intelligence hero card -->
+        <div class="jcard jcard-hero">
+          <span class="jcard-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Performance Intelligence
+          </span>
+          <h2 class="jcard-heading">Turn every trade into<br>a learning loop.</h2>
+          <p class="jcard-desc">Log every trade, capture your reasoning, and let the data reveal patterns you can't see in the moment. Your journal is your most honest coach.</p>
+          <div class="jcard-actions">
+            <button class="jbtn-ghost">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+              Connect Broker
+            </button>
+            <button class="jbtn-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add Trade Note
+            </button>
+          </div>
+          <!-- Decorative ring -->
+          <div class="jcard-deco" aria-hidden="true">
+            <div class="jdeco-ring jdeco-ring-1"></div>
+            <div class="jdeco-ring jdeco-ring-2"></div>
+          </div>
+        </div>
+
+        <!-- Right: 3 summary cards stacked -->
+        <div class="journal-summary-stack">
+
+          <!-- Win Rate -->
+          <div class="jcard jcard-stat">
+            <div class="jstat-label">
+              <span class="jstat-dot jstat-dot-profit"></span>
+              Win Rate
+            </div>
+            <div class="jstat-value jstat-value-profit">68<span class="jstat-unit">%</span></div>
+            <div class="jstat-bar">
+              <div class="jstat-bar-fill" style="width:68%"></div>
+            </div>
+            <div class="jstat-sub">34 wins · 16 losses · 50 trades</div>
+          </div>
+
+          <!-- Avg R:R -->
+          <div class="jcard jcard-stat">
+            <div class="jstat-label">
+              <span class="jstat-dot jstat-dot-accent"></span>
+              Avg. R:R
+            </div>
+            <div class="jstat-value jstat-value-accent">1<span class="jstat-colon">:</span>2.4</div>
+            <div class="jstat-bar">
+              <div class="jstat-bar-fill jstat-bar-accent" style="width:80%"></div>
+            </div>
+            <div class="jstat-sub">Reward exceeds risk on avg.</div>
+          </div>
+
+          <!-- Focus -->
+          <div class="jcard jcard-stat">
+            <div class="jstat-label">
+              <span class="jstat-dot jstat-dot-muted"></span>
+              Focus
+            </div>
+            <div class="jstat-value jstat-value-text">NIFTY<span class="jstat-unit-sm"> F&amp;O</span></div>
+            <div class="jstat-tags">
+              <span class="jtag jtag-active">NIFTY</span>
+              <span class="jtag">BANKNIFTY</span>
+              <span class="jtag">RELIANCE</span>
+            </div>
+            <div class="jstat-sub">Top instrument this month</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Stats row: 4 cards -->
+      <div class="journal-stats-row">
+
+        <div class="jcard jcard-metric">
+          <div class="jmetric-icon jmetric-icon-blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <div class="jmetric-label">Total Trades</div>
+          <div class="jmetric-value">50</div>
+          <div class="jmetric-delta jmetric-delta-up">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            +8 this month
+          </div>
+        </div>
+
+        <div class="jcard jcard-metric">
+          <div class="jmetric-icon jmetric-icon-profit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="jmetric-label">Net P&amp;L</div>
+          <div class="jmetric-value jmetric-profit">+₹48,200</div>
+          <div class="jmetric-delta jmetric-delta-up">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            +₹12,400 this month
+          </div>
+        </div>
+
+        <div class="jcard jcard-metric">
+          <div class="jmetric-icon jmetric-icon-warn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+          </div>
+          <div class="jmetric-label">Avg. Risk</div>
+          <div class="jmetric-value">0.8<span class="jmetric-unit">%</span></div>
+          <div class="jmetric-delta jmetric-delta-neutral">Per trade of account</div>
+        </div>
+
+        <div class="jcard jcard-metric">
+          <div class="jmetric-icon jmetric-icon-accent">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </div>
+          <div class="jmetric-label">Best Setup</div>
+          <div class="jmetric-value jmetric-accent">Breakout</div>
+          <div class="jmetric-delta jmetric-delta-up">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            76% win rate
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent trades teaser -->
+      <div class="journal-recent-header">
+        <h3 class="journal-section-title">Recent Trade Notes</h3>
+        <button class="jbtn-ghost jbtn-sm">View all</button>
+      </div>
+
+      <div class="journal-trades-list">
+
+        <div class="jtrade-card jtrade-win">
+          <div class="jtrade-side">
+            <span class="jtrade-outcome jtrade-outcome-win">W</span>
+            <span class="jtrade-date">Today</span>
+          </div>
+          <div class="jtrade-body">
+            <div class="jtrade-top">
+              <span class="jtrade-symbol">NIFTY</span>
+              <span class="jtag jtag-inline">CE · Weekly</span>
+              <span class="jtrade-setup">Breakout</span>
+            </div>
+            <p class="jtrade-note">Clean breakout above 24,800 resistance. Entered on retest, SL below breakout candle. Target hit in 40 min.</p>
+          </div>
+          <div class="jtrade-pnl jtrade-pnl-pos">+₹4,200</div>
+        </div>
+
+        <div class="jtrade-card jtrade-loss">
+          <div class="jtrade-side">
+            <span class="jtrade-outcome jtrade-outcome-loss">L</span>
+            <span class="jtrade-date">Yesterday</span>
+          </div>
+          <div class="jtrade-body">
+            <div class="jtrade-top">
+              <span class="jtrade-symbol">BANKNIFTY</span>
+              <span class="jtag jtag-inline">PE · Monthly</span>
+              <span class="jtrade-setup">Mean Reversion</span>
+            </div>
+            <p class="jtrade-note">Anticipated reversal from upper Bollinger band. News-driven spike stopped me out. Should have waited for candle close.</p>
+          </div>
+          <div class="jtrade-pnl jtrade-pnl-neg">−₹1,800</div>
+        </div>
+
+        <div class="jtrade-card jtrade-win">
+          <div class="jtrade-side">
+            <span class="jtrade-outcome jtrade-outcome-win">W</span>
+            <span class="jtrade-date">2 days ago</span>
+          </div>
+          <div class="jtrade-body">
+            <div class="jtrade-top">
+              <span class="jtrade-symbol">RELIANCE</span>
+              <span class="jtag jtag-inline">Stock · CNC</span>
+              <span class="jtrade-setup">Trend Follow</span>
+            </div>
+            <p class="jtrade-note">Strong uptrend with higher highs. Entered pullback to 20EMA. Position sized to 0.8% risk. Textbook execution.</p>
+          </div>
+          <div class="jtrade-pnl jtrade-pnl-pos">+₹6,750</div>
+        </div>
+
+      </div>
+
+    </div><!-- /#journalDashboard -->
+
+    <!-- ── JOURNAL CALENDAR VIEW ── -->
+    <div id="journalCalendar" hidden>
+
+      <!-- Calendar header -->
+      <div class="jcal-header">
+        <div class="jcal-header-left">
+          <button class="jcal-back-btn" id="jcalBackBtn" aria-label="Back to journal dashboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+            Back
+          </button>
+          <div class="jcal-title-block">
+            <h2 class="jcal-title">Daily Summary</h2>
+            <span class="jcal-month-label" id="jcalMonthLabel">August 2026</span>
+          </div>
+        </div>
+        <div class="jcal-header-right">
+          <div class="jcal-summary-pills">
+            <div class="jcal-pill">
+              <span class="jcal-pill-label">Total P&amp;L</span>
+              <span class="jcal-pill-value" id="jcalTotalPnl">—</span>
+            </div>
+            <div class="jcal-pill">
+              <span class="jcal-pill-label">Trading Days</span>
+              <span class="jcal-pill-value jcal-pill-neutral" id="jcalTradingDays">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Month navigation -->
+      <div class="jcal-nav">
+        <button class="jcal-nav-btn" id="jcalPrevBtn" aria-label="Previous month">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Prev
+        </button>
+        <button class="jcal-nav-btn jcal-today-btn" id="jcalTodayBtn">Today</button>
+        <button class="jcal-nav-btn" id="jcalNextBtn" aria-label="Next month">
+          Next
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <!-- Main calendar + sidebar -->
+      <div class="jcal-body">
+
+        <!-- Calendar grid -->
+        <div class="jcal-main">
+          <!-- Day-of-week header row -->
+          <div class="jcal-dow-row">
+            <div class="jcal-dow">Mon</div>
+            <div class="jcal-dow">Tue</div>
+            <div class="jcal-dow">Wed</div>
+            <div class="jcal-dow">Thu</div>
+            <div class="jcal-dow">Fri</div>
+            <div class="jcal-dow jcal-dow-weekend">Sat</div>
+            <div class="jcal-dow jcal-dow-weekend">Sun</div>
+          </div>
+          <!-- Day cells rendered by JS -->
+          <div class="jcal-grid" id="jcalGrid"></div>
+        </div>
+
+        <!-- Weekly summary sidebar -->
+        <aside class="jcal-sidebar">
+          <h3 class="jcal-sidebar-title">Weekly Summary</h3>
+          <div class="jcal-weeks-list" id="jcalWeeksList"></div>
+        </aside>
+
+      </div><!-- /.jcal-body -->
+
+      <!-- ── PERFORMANCE SECTION ── -->
+      <section class="jperf-section">
+        <div class="jperf-card">
+
+          <!-- Card header -->
+          <div class="jperf-header">
+            <div class="jperf-title-group">
+              <div class="jperf-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              </div>
+              <div>
+                <h3 class="jperf-title">Performance</h3>
+                <p class="jperf-subtitle">Account balance over time</p>
+              </div>
+            </div>
+            <div class="jperf-controls">
+              <div class="jperf-pick-wrap">
+                <button class="jperf-pick-btn" id="jperfPickBtn" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                  <span id="jperfPickLabel">All time</span>
+                  <svg class="jperf-pick-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="jperf-pick-popover" id="jperfPickPopover" hidden>
+                  <div class="jperf-pick-row">
+                    <label class="jperf-pick-label" for="jperfFrom">From</label>
+                    <input type="date" id="jperfFrom" class="jperf-date-input" aria-label="From date" />
+                  </div>
+                  <div class="jperf-pick-row">
+                    <label class="jperf-pick-label" for="jperfTo">To</label>
+                    <input type="date" id="jperfTo" class="jperf-date-input" aria-label="To date" />
+                  </div>
+                  <div class="jperf-pick-actions">
+                    <button class="jperf-pick-apply" id="jperfPickApply" type="button">Apply</button>
+                    <button class="jperf-pick-clear" id="jperfPickClear" type="button">All time</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary pills row -->
+          <div class="jperf-pills">
+            <div class="jperf-pill">
+              <span class="jperf-pill-label">Starting Balance</span>
+              <span class="jperf-pill-value" id="jperfStartBal">₹5,00,000</span>
+            </div>
+            <div class="jperf-pill">
+              <span class="jperf-pill-label">Current Balance</span>
+              <span class="jperf-pill-value" id="jperfCurBal">—</span>
+            </div>
+            <div class="jperf-pill">
+              <span class="jperf-pill-label">Net Change</span>
+              <span class="jperf-pill-value" id="jperfNetChange">—</span>
+            </div>
+            <div class="jperf-pill">
+              <span class="jperf-pill-label">Return</span>
+              <span class="jperf-pill-value" id="jperfReturn">—</span>
+            </div>
+            <div class="jperf-pill">
+              <span class="jperf-pill-label">Max Drawdown</span>
+              <span class="jperf-pill-value" id="jperfDrawdown">—</span>
+            </div>
+          </div>
+
+          <!-- Canvas chart -->
+          <div class="jperf-canvas-wrap">
+            <canvas id="jperfCanvas" class="jperf-canvas"></canvas>
+            <!-- Hover tooltip -->
+            <div class="jperf-tooltip" id="jperfTooltip" hidden>
+              <div class="jperf-tooltip-date" id="jperfTooltipDate"></div>
+              <div class="jperf-tooltip-bal" id="jperfTooltipBal"></div>
+              <div class="jperf-tooltip-pnl" id="jperfTooltipPnl"></div>
+            </div>
+          </div>
+
+          <p class="jperf-empty" id="jperfEmpty" hidden>No trade data in the selected range. Add trades using the calendar above.</p>
+
+        </div>
+      </section>
+
+    </div><!-- /#journalCalendar -->
+
+    <!-- ── JOURNAL ADD TRADE VIEW ── -->
+    <div id="journalTradeForm" hidden>
+
+      <!-- Form header -->
+      <div class="jtf-header">
+        <div class="jtf-header-left">
+          <button class="jcal-back-btn" id="jtfCancelBtn" aria-label="Back to calendar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+            Cancel
+          </button>
+          <div class="jcal-title-block">
+            <h2 class="jcal-title">Add Trade</h2>
+            <span class="jcal-month-label" id="jtfDateLabel">—</span>
+          </div>
+        </div>
+        <button class="jtf-save-btn" id="jtfSaveBtn" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          Save Trade
+        </button>
+      </div>
+
+      <!-- Form body -->
+      <div class="jtf-body">
+
+        <!-- Left column -->
+        <div class="jtf-col jtf-col-main">
+
+          <!-- Symbol -->
+          <div class="jtf-section">
+            <label class="jtf-label" for="jtfSymbol">Symbol <span class="req">*</span></label>
+            <div class="jtf-input-wrap">
+              <svg class="jtf-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="jtfSymbol" class="jtf-input" type="text" placeholder="NIFTY, BANKNIFTY, RELIANCE…" autocomplete="off" />
+            </div>
+            <p class="jtf-error" id="jtfSymbolErr" hidden></p>
+          </div>
+
+          <!-- Trade Setup -->
+          <div class="jtf-section">
+            <label class="jtf-label" for="jtfSetup">Trade Setup <span class="req">*</span></label>
+            <div class="jtf-input-wrap">
+              <svg class="jtf-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              <input id="jtfSetup" class="jtf-input" type="text" placeholder="e.g. Liquidity Sweep, ORB, SMT, FVG…" autocomplete="off" />
+            </div>
+            <p class="jtf-error" id="jtfSetupErr" hidden></p>
+          </div>
+
+          <!-- Screenshot upload -->
+          <div class="jtf-section">
+            <label class="jtf-label">
+              Screenshot
+              <span class="jtf-ai-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><circle cx="19" cy="5" r="3"/></svg>
+                AI Auto-fill
+              </span>
+            </label>
+            <label class="jtf-upload-zone" id="jtfUploadZone" for="jtfScreenshot">
+              <div class="jtf-upload-idle" id="jtfUploadIdle">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Drop image or <u>browse</u></span>
+                <span class="jtf-upload-hint">PNG, JPG, WEBP — AI will auto-fill fields from your chart</span>
+              </div>
+              <img id="jtfPreviewImg" class="jtf-preview-img" src="" alt="Trade screenshot preview" hidden />
+              <input id="jtfScreenshot" type="file" accept="image/*" class="jtf-file-input" tabindex="-1" />
+            </label>
+            <button class="jtf-remove-img" id="jtfRemoveImg" hidden type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Remove image
+            </button>
+
+            <!-- AI Analysis Banner — states: loading / results / error / poor-quality -->
+            <div class="jtf-ai-banner" id="jtfAiBanner" hidden>
+
+              <!-- Loading state -->
+              <div class="jtf-ai-loading" id="jtfAiLoading" hidden>
+                <div class="jtf-ai-spinner"></div>
+                <div>
+                  <div class="jtf-ai-loading-title">Analysing your chart…</div>
+                  <div class="jtf-ai-loading-sub">Extracting symbol, prices, and trade direction</div>
+                </div>
+              </div>
+
+              <!-- Poor quality state -->
+              <div class="jtf-ai-poor" id="jtfAiPoor" hidden>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div>
+                  <div class="jtf-ai-poor-title">Screenshot quality too low</div>
+                  <div class="jtf-ai-poor-sub">Upload a clearer chart image for AI auto-fill. Fields left blank for manual entry.</div>
+                </div>
+              </div>
+
+              <!-- Error state -->
+              <div class="jtf-ai-error" id="jtfAiError" hidden>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                  <div class="jtf-ai-error-title">AI analysis unavailable</div>
+                  <div class="jtf-ai-error-sub" id="jtfAiErrorMsg">Add your Gemini API key to enable auto-fill.</div>
+                </div>
+                <button class="jtf-ai-cfg-btn" id="jtfAiCfgBtn" type="button">Configure</button>
+              </div>
+
+              <!-- Results state -->
+              <div class="jtf-ai-results" id="jtfAiResults" hidden>
+                <div class="jtf-ai-results-header">
+                  <div class="jtf-ai-results-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    AI auto-filled <span id="jtfAiFieldCount">0</span> fields
+                  </div>
+                  <button class="jtf-ai-dismiss" id="jtfAiDismiss" type="button" aria-label="Dismiss AI results">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <div class="jtf-ai-chips" id="jtfAiChips"></div>
+                <p class="jtf-ai-edit-note">All values are editable — review before saving.</p>
+              </div>
+
+            </div><!-- /#jtfAiBanner -->
+          </div>
+
+          <!-- Price fields — 2×2 grid -->
+          <div class="jtf-section">
+            <div class="jtf-price-grid">
+              <div>
+                <label class="jtf-label" for="jtfEntry">Entry Price <span class="req">*</span></label>
+                <div class="jtf-num-wrap">
+                  <span class="jtf-affix">₹</span>
+                  <input id="jtfEntry" class="jtf-num-input" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00" />
+                </div>
+                <p class="jtf-error" id="jtfEntryErr" hidden></p>
+              </div>
+              <div>
+                <label class="jtf-label" for="jtfSL">Stop Loss <span class="req">*</span></label>
+                <div class="jtf-num-wrap">
+                  <span class="jtf-affix">₹</span>
+                  <input id="jtfSL" class="jtf-num-input" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00" />
+                </div>
+                <p class="jtf-error" id="jtfSLErr" hidden></p>
+              </div>
+              <div>
+                <label class="jtf-label" for="jtfTP">Take Profit <span class="req">*</span></label>
+                <div class="jtf-num-wrap">
+                  <span class="jtf-affix">₹</span>
+                  <input id="jtfTP" class="jtf-num-input" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00" />
+                </div>
+                <p class="jtf-error" id="jtfTPErr" hidden></p>
+              </div>
+              <div>
+                <label class="jtf-label" for="jtfRR">Risk Ratio</label>
+                <div class="jtf-num-wrap jtf-num-readonly">
+                  <span class="jtf-affix">1 :</span>
+                  <input id="jtfRR" class="jtf-num-input" type="text" readonly placeholder="auto" tabindex="-1" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- P&L (auto-computed) -->
+          <div class="jtf-section">
+            <label class="jtf-label" for="jtfPnl">Realised P&amp;L <span class="req">*</span></label>
+            <div class="jtf-num-wrap">
+              <span class="jtf-affix">₹</span>
+              <input id="jtfPnl" class="jtf-num-input" type="number" inputmode="decimal" step="any" placeholder="e.g. 4200 or -1800" />
+            </div>
+            <p class="jtf-error" id="jtfPnlErr" hidden></p>
+            <p class="jtf-hint">Enter the actual realised P&amp;L for this trade (positive = profit, negative = loss).</p>
+          </div>
+
+        </div><!-- /.jtf-col-main -->
+
+        <!-- Right column -->
+        <div class="jtf-col jtf-col-side">
+
+          <!-- Outcome selector -->
+          <div class="jtf-section">
+            <label class="jtf-label">Outcome <span class="req">*</span></label>
+            <div class="jtf-outcome-row">
+              <button type="button" class="jtf-outcome-btn jtf-outcome-win" id="jtfOutcomeWin" data-val="win">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Win
+              </button>
+              <button type="button" class="jtf-outcome-btn jtf-outcome-loss" id="jtfOutcomeLoss" data-val="loss">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Loss
+              </button>
+              <button type="button" class="jtf-outcome-btn jtf-outcome-be" id="jtfOutcomeBE" data-val="be">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                B/E
+              </button>
+            </div>
+            <p class="jtf-error" id="jtfOutcomeErr" hidden></p>
+          </div>
+
+          <!-- Mistakes -->
+          <div class="jtf-section">
+            <label class="jtf-label" for="jtfMistakes">Mistakes</label>
+            <textarea id="jtfMistakes" class="jtf-textarea" rows="4" placeholder="What went wrong? What would you do differently?"></textarea>
+          </div>
+
+          <!-- AI Review / Notes -->
+          <div class="jtf-section">
+            <label class="jtf-label" for="jtfNotes">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="6" r="3"/></svg>
+              AI Review / Notes
+            </label>
+            <textarea id="jtfNotes" class="jtf-textarea" rows="5" placeholder="Write your analysis, key observations, or paste AI feedback here…"></textarea>
+          </div>
+
+          <!-- Emotion / psychology tags -->
+          <div class="jtf-section">
+            <label class="jtf-label">Psychology Tags</label>
+            <div class="jtf-psych-tags" id="jtfPsychTags">
+              <button type="button" class="jtf-tag-btn" data-tag="Disciplined">Disciplined</button>
+              <button type="button" class="jtf-tag-btn" data-tag="FOMO">FOMO</button>
+              <button type="button" class="jtf-tag-btn" data-tag="Revenge">Revenge</button>
+              <button type="button" class="jtf-tag-btn" data-tag="Impatient">Impatient</button>
+              <button type="button" class="jtf-tag-btn" data-tag="Calm">Calm</button>
+              <button type="button" class="jtf-tag-btn" data-tag="Overconfident">Overconfident</button>
+              <button type="button" class="jtf-tag-btn" data-tag="Rule-based">Rule-based</button>
+            </div>
+          </div>
+
+        </div><!-- /.jtf-col-side -->
+      </div><!-- /.jtf-body -->
+
+    </div><!-- /#journalTradeForm -->
+
+    <!-- AI API Key Config Modal -->
+    <div class="jtf-modal-overlay" id="jtfApiModal" hidden>
+      <div class="jtf-modal">
+        <div class="jtf-modal-header">
+          <h3 class="jtf-modal-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 8-4 4 4 4"/><path d="M16 12H8"/></svg>
+            Configure AI Auto-fill
+          </h3>
+          <button class="jtf-modal-close" id="jtfApiModalClose" type="button" aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="jtf-modal-body">
+          <p class="jtf-modal-desc">Enter your <strong>Google Gemini API key</strong> to enable AI-powered chart analysis. Your key is stored only in your browser's local storage and never sent anywhere except directly to Google's API.</p>
+          <label class="jtf-label" for="jtfApiKeyInput">Gemini API Key</label>
+          <div class="jtf-input-wrap" style="margin-top:8px;">
+            <svg class="jtf-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input id="jtfApiKeyInput" class="jtf-input" type="password" placeholder="AIza…" autocomplete="off" spellcheck="false" />
+          </div>
+          <p class="jtf-hint" style="margin-top:8px;">Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--accent)">aistudio.google.com</a></p>
+        </div>
+        <div class="jtf-modal-footer">
+          <button class="jtf-save-btn" id="jtfApiSaveBtn" type="button" style="padding:11px 22px;font-size:13px;">Save Key</button>
+          <button class="jbtn-ghost" id="jtfApiCancelBtn" type="button" style="padding:11px 18px;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /#journalPage -->
+
+    <!-- BROKER SELECTION MODAL -->
+    <div class="broker-modal-overlay" id="brokerModal" hidden>
+      <div class="broker-modal">
+        <div class="broker-modal-header">
+          <div class="broker-modal-title-wrap">
+            <h2 class="broker-modal-title">Connect Broker</h2>
+            <p class="broker-modal-subtitle">Indian & Forex Brokers</p>
+          </div>
+          <div class="broker-modal-header-right">
+            <div class="broker-modal-search">
+              <svg class="broker-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input 
+                type="text" 
+                class="broker-search-input" 
+                id="brokerSearchInput"
+                placeholder="Search broker"
+                autocomplete="off"
+              />
+            </div>
+            <button class="broker-modal-close" id="brokerModalClose" aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="broker-modal-content" id="brokerModalContent">
+          <!-- Broker cards will be rendered here by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT PAGE -->
+    <div class="about-page" id="aboutPage" hidden>
+      <!-- Hero Section -->
+      <section class="about-hero">
+        <h1 class="about-title">About RiskLoop</h1>
+        <p class="about-subtitle">Professional Risk Management & Position Sizing Platform</p>
+        <p class="about-intro">
+          RiskLoop helps traders protect capital through disciplined position sizing and risk management. 
+          Built for traders who understand that consistent profitability comes from managing risk, not chasing returns.
+        </p>
+      </section>
+
+      <!-- Mission Section -->
+      <section class="about-section">
+        <h2 class="section-title">Our Mission</h2>
+        <p class="section-text">
+          We believe that successful trading is built on a foundation of disciplined risk management. 
+          RiskLoop empowers traders to make consistent, risk-controlled decisions by providing precise 
+          position sizing calculations and comprehensive risk analytics. Our mission is to help every trader 
+          protect their capital while pursuing consistent growth in the markets.
+        </p>
+      </section>
+
+      <!-- Why RiskLoop Section -->
+      <section class="about-section">
+        <h2 class="section-title">Why RiskLoop</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            </div>
+            <h3 class="feature-title">Capital Protection</h3>
+            <p class="feature-text">Never risk more than you can afford to lose. Calculate exact position sizes based on your risk tolerance.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><circle cx="12" cy="12" r="4"/></svg>
+            </div>
+            <h3 class="feature-title">Position Sizing</h3>
+            <p class="feature-text">Precise lot-based calculations for F&O instruments. No guesswork, only mathematical precision.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            </div>
+            <h3 class="feature-title">Risk Management</h3>
+            <p class="feature-text">Understand your actual risk exposure. Visualize risk utilization with clear metrics and gauges.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <h3 class="feature-title">Trading Discipline</h3>
+            <p class="feature-text">Build systematic trading habits. Stick to your risk rules on every trade, every time.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Current Features Section -->
+      <section class="about-section">
+        <h2 class="section-title">Current Features</h2>
+        <div class="features-list">
+          <div class="feature-item">
+            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div>
+              <h4>Position Size Calculator</h4>
+              <p>Calculate precise lot sizes based on account size, risk percentage, and stop-loss points.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div>
+              <h4>Multiple Instrument Support</h4>
+              <p>Trade indices (NIFTY, BANKNIFTY, FINNIFTY) and 50+ stocks with accurate lot sizes.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div>
+              <h4>Dark/Light Mode</h4>
+              <p>Comfortable viewing experience with premium claymorphism design in both themes.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div>
+              <h4>Fast Calculations</h4>
+              <p>Instant results with detailed breakdowns of risk utilization and position metrics.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Upcoming Features Section -->
+      <section class="about-section">
+        <h2 class="section-title">Upcoming Features</h2>
+        <div class="roadmap-grid">
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Coming Soon</span>
+            <h4>Portfolio Tracker</h4>
+            <p>Monitor all your positions in one place with real-time P&L tracking.</p>
+          </div>
+
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Coming Soon</span>
+            <h4>Trading Journal</h4>
+            <p>Document trades, analyze patterns, and improve decision-making over time.</p>
+          </div>
+
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Coming Soon</span>
+            <h4>Strategy Library</h4>
+            <p>Access pre-built trading strategies with risk-adjusted position sizing.</p>
+          </div>
+
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Planned</span>
+            <h4>Risk/Reward Calculator</h4>
+            <p>Evaluate trade setups with R:R ratios and expected value analysis.</p>
+          </div>
+
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Planned</span>
+            <h4>Brokerage Calculator</h4>
+            <p>Factor in transaction costs for accurate net P&L projections.</p>
+          </div>
+
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Planned</span>
+            <h4>Margin Calculator</h4>
+            <p>Estimate margin requirements across brokers before placing trades.</p>
+          </div>
+
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Planned</span>
+            <h4>Performance Analytics</h4>
+            <p>Deep insights into win rates, drawdowns, and risk-adjusted returns.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Risk Disclaimer Section -->
+      <section class="about-section disclaimer-section">
+        <div class="disclaimer-card">
+          <div class="disclaimer-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>
+          </div>
+          <div>
+            <h3 class="disclaimer-title">Risk Disclaimer</h3>
+            <p class="disclaimer-text">
+              RiskLoop is an educational and risk management tool designed to assist traders in calculating 
+              position sizes and managing risk. It does not provide investment advice, trading recommendations, 
+              or financial counsel. Trading in derivatives and equity markets involves substantial risk of loss 
+              and is not suitable for all investors. Past performance is not indicative of future results. 
+              Always verify lot sizes and calculations against current exchange circulars. Users are solely 
+              responsible for their trading decisions and should consult with a qualified financial advisor 
+              before making any investment decisions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Section -->
+      <footer class="about-footer">
+        <p class="footer-text">Built with <span class="heart">❤️</span> for disciplined traders</p>
+        <p class="footer-copyright">© 2026 RiskLoop. All rights reserved.</p>
+      </footer>
+    </div>
+
+    <footer class="disclaimer" id="calculatorDisclaimer">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>
+      Lot sizes are reference values for this demo and may lag live exchange circulars. Always confirm against the current NSE/BSE contract file before placing a trade. This tool does not constitute investment advice.
+    </footer>
+
+  </div>
+
+  <script src="websocket-client.js"></script>
+  <script src="broker-api.js"></script>
+  <script src="instruments.js"></script>
+  <script src="script.js"></script>
+  <script src="market-data.js"></script>
+  <script src="indian-market.js"></script>
+</body>
+</html>

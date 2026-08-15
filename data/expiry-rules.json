@@ -1,0 +1,15 @@
+{
+  "weeklyExpiry": {
+    "NIFTY": "Thursday",
+    "BANKNIFTY": "Wednesday",
+    "FINNIFTY": "Tuesday",
+    "MIDCPNIFTY": "Monday"
+  },
+  "monthlyExpiry": {
+    "default": "Thursday",
+    "rule": "lastThursday",
+    "description": "Monthly expiry is on the last Thursday of the month for all instruments"
+  },
+  "lastUpdated": "2026-01-15",
+  "note": "NSE periodically changes expiry days. This config allows dynamic updates without code changes."
+}

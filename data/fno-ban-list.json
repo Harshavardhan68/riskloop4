@@ -1,0 +1,19 @@
+{
+  "banList": [
+    {
+      "symbol": "ZOMATO",
+      "name": "Eternal (Zomato)",
+      "entryDate": "2026-07-10",
+      "reason": "Crossed 95% of market-wide position limit"
+    },
+    {
+      "symbol": "PAYTM",
+      "name": "One 97 Communications",
+      "entryDate": "2026-07-12",
+      "reason": "Exceeded position limit threshold"
+    }
+  ],
+  "lastUpdated": "2026-07-14T09:15:00Z",
+  "source": "NSE Circulars",
+  "note": "Updated daily from NSE official F&O segment data"
+}
