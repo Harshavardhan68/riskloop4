@@ -19,6 +19,7 @@ import {
   tradesRoutes,
   devRoutes,
   websocketRoutes,
+  commentsRoutes,
 } from './routes/index.js';
 import { db }                    from './services/DatabaseService.js';
 import { tradeExecutionService } from './services/TradeExecutionService.js';
@@ -133,6 +134,7 @@ app.use('/api/holdings', holdingsRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/trades', tradesRoutes);
 app.use('/api/websocket', websocketRoutes);
+app.use('/api/market', commentsRoutes);
 
 // Development routes (disabled in production)
 app.use('/api/dev', devRoutes);
@@ -186,6 +188,14 @@ app.listen(PORT, () => {
   console.log(`     • GET    /api/holdings?brokerId=<id>`);
   console.log(`     • POST   /api/quotes?brokerId=<id>`);
   console.log(`     • GET    /api/trades?brokerId=<id>`);
+  console.log(`     • GET    /api/market/comments?sort=<recent|liked>&page=<n>&limit=<n>`);
+  console.log(`     • POST   /api/market/comments`);
+  console.log(`     • PUT    /api/market/comments/:id`);
+  console.log(`     • DELETE /api/market/comments/:id`);
+  console.log(`     • POST   /api/market/comments/:id/like`);
+  console.log(`     • POST   /api/market/comments/:id/dislike`);
+  console.log(`     • POST   /api/market/comments/:id/reply`);
+  console.log(`     • POST   /api/market/comments/:id/report`);
   console.log('');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('');

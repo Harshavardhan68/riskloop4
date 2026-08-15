@@ -13,6 +13,7 @@ import quotesRoutes from './quotes.js';
 import tradesRoutes from './trades.js';
 import devRoutes from './dev.js';
 import websocketRoutes from './websocket.js';
+import commentsRoutes from './comments.js';
 
 export {
   authRoutes,
@@ -25,4 +26,5 @@ export {
   tradesRoutes,
   devRoutes,
   websocketRoutes,
+  commentsRoutes,
 };

@@ -325,6 +325,74 @@
               </div>
             </section>
 
+            <!-- Market Comments / Community Discussion Section -->
+            <section class="market-comments-section">
+              <div class="comments-header">
+                <div class="comments-title-group">
+                  <h2 class="section-heading">What are your thoughts?</h2>
+                  <p class="comments-subtitle">Share your views on the market, sectors and trends with other traders.</p>
+                </div>
+                <div class="comments-controls">
+                  <select class="comment-sort-select">
+                    <option value="recent">Most Recent</option>
+                    <option value="liked">Most Liked</option>
+                  </select>
+                  <button class="comments-refresh-btn" title="Refresh comments">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="23 4 23 10 17 10"></polyline>
+                      <polyline points="1 20 1 14 7 14"></polyline>
+                      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Comment Composer -->
+              <div class="comment-composer">
+                <div class="composer-avatar">
+                  <div class="avatar-initials">T</div>
+                </div>
+                <div class="composer-input-group">
+                  <textarea 
+                    class="composer-textarea" 
+                    placeholder="Write your comment..." 
+                    maxlength="2000"
+                    rows="3"
+                  ></textarea>
+                  <div class="composer-footer">
+                    <div class="composer-actions-left">
+                      <button class="emoji-btn" title="Add emoji">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                          <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                          <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                        </svg>
+                      </button>
+                      <span class="char-counter">0/2000</span>
+                    </div>
+                    <button class="post-comment-btn">
+                      Post Comment
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comments Feed -->
+              <div class="comments-feed">
+                <!-- Comments will be dynamically loaded here -->
+                <div class="comments-loading">
+                  <div class="spinner"></div>
+                  <p>Loading comments...</p>
+                </div>
+              </div>
+
+              <!-- Pagination -->
+              <div class="comments-pagination" style="display: none;">
+                <!-- Pagination controls will be dynamically added here -->
+              </div>
+            </section>
+
           </div><!-- /.indian-market-main -->
 
           <!-- Right Column - Positioned alongside Top Movers -->
@@ -1645,5 +1713,6 @@
   <script src="script.js"></script>
   <script src="market-data.js"></script>
   <script src="indian-market.js"></script>
+  <script src="market-comments.js"></script>
 </body>
 </html>
