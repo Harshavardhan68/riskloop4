@@ -291,13 +291,26 @@ const CRYPTO_INSTRUMENTS = filterCryptoByPrice();
    ============================================================ */
 
 // F&O CLC uses INSTRUMENT_DB
-const INSTRUMENT_DB = FO_INSTRUMENTS;
+var INSTRUMENT_DB = typeof FO_INSTRUMENTS !== 'undefined' ? FO_INSTRUMENTS : [];
 
 // Forex CLC uses FOREX_DB
-const FOREX_DB = FOREX_INSTRUMENTS;
+var FOREX_DB = typeof FOREX_INSTRUMENTS !== 'undefined' ? FOREX_INSTRUMENTS : [];
 
 // Crypto CLC uses CRYPTO_DB
-const CRYPTO_DB = CRYPTO_INSTRUMENTS;
+var CRYPTO_DB = typeof CRYPTO_INSTRUMENTS !== 'undefined' ? CRYPTO_INSTRUMENTS : [];
+
+if (typeof window !== 'undefined') {
+  window.NSE_STOCKS = typeof NSE_STOCKS !== 'undefined' ? NSE_STOCKS : [];
+  window.NSE_FO_INDICES = typeof NSE_FO_INDICES !== 'undefined' ? NSE_FO_INDICES : [];
+  window.STOCK_INSTRUMENTS = typeof STOCK_INSTRUMENTS !== 'undefined' ? STOCK_INSTRUMENTS : [];
+  window.FO_INSTRUMENTS = typeof FO_INSTRUMENTS !== 'undefined' ? FO_INSTRUMENTS : [];
+  window.FOREX_INSTRUMENTS = typeof FOREX_INSTRUMENTS !== 'undefined' ? FOREX_INSTRUMENTS : [];
+  window.CRYPTO_CANDIDATES = typeof CRYPTO_CANDIDATES !== 'undefined' ? CRYPTO_CANDIDATES : [];
+  window.CRYPTO_INSTRUMENTS = typeof CRYPTO_INSTRUMENTS !== 'undefined' ? CRYPTO_INSTRUMENTS : [];
+  window.INSTRUMENT_DB = INSTRUMENT_DB;
+  window.FOREX_DB = FOREX_DB;
+  window.CRYPTO_DB = CRYPTO_DB;
+}
 
 /* ============================================================
    EXPORTS (for Node/ESM environments — no-op in browsers)

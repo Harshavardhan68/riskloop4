@@ -7,7 +7,7 @@
    Stock-level entries are representative sample values — always
    confirm against the live NSE/BSE contract file before trading.
    ============================================================ */
-const INSTRUMENT_DB = [
+var INSTRUMENT_DB = (typeof INSTRUMENT_DB !== 'undefined' && INSTRUMENT_DB.length > 0) ? INSTRUMENT_DB : [
   { symbol: "NIFTY", name: "Nifty 50", exchange: "NSE", type: "Index", lotSize: 65, updated: "2026-01-27" },
   { symbol: "BANKNIFTY", name: "Nifty Bank", exchange: "NSE", type: "Index", lotSize: 30, updated: "2026-01-27" },
   { symbol: "FINNIFTY", name: "Nifty Financial Services", exchange: "NSE", type: "Index", lotSize: 60, updated: "2026-01-27" },
@@ -721,6 +721,7 @@ renderLotHint();
 const PAGES = {
   home: 'home',
   market: 'market',
+  forex: 'market',
   'calculator-stock': 'calculator-stock',
   'calculator-fo': 'calculator-fo',
   'calculator-forex': 'calculator-forex',
@@ -798,12 +799,25 @@ function showPage(pageName) {
       break;
     case 'strategies':
       strategiesPage.hidden = false;
+      if (typeof window.initStrategiesPage === 'function') {
+        setTimeout(window.initStrategiesPage, 30);
+      }
       break;
     case 'portfolio':
       portfolioPage.hidden = false;
+      if (typeof window.initPortfolioPage === 'function') {
+        setTimeout(window.initPortfolioPage, 30);
+      }
       break;
     case 'journal':
       journalPage.hidden = false;
+      const journalCalendar = document.getElementById('journalCalendar');
+      if (journalCalendar) journalCalendar.hidden = false;
+      const journalTradeForm = document.getElementById('journalTradeForm');
+      if (journalTradeForm) journalTradeForm.hidden = true;
+      if (typeof window.renderJournalCalendar === 'function') {
+        window.renderJournalCalendar();
+      }
       break;
     case 'about':
       aboutPage.hidden = false;
@@ -958,7 +972,14 @@ function initRouting() {
   
   // Initialize market page if it's the current page
   if (initialPage === 'market') {
-    initializeMarketPage();
+    const isForexHash = window.location.hash === '#forex';
+    setTimeout(() => {
+      if (isForexHash && typeof window.switchMarket === 'function') {
+        window.switchMarket('forex');
+      } else if (typeof window.initializeMarketPage === 'function') {
+        window.initializeMarketPage();
+      }
+    }, 50);
   }
 }
 
@@ -966,7 +987,14 @@ function initRouting() {
 window.addEventListener('hashchange', () => {
   const page = getCurrentPage();
   if (page === 'market') {
-    setTimeout(() => initializeMarketPage(), 100);
+    const isForexHash = window.location.hash === '#forex';
+    setTimeout(() => {
+      if (isForexHash && typeof window.switchMarket === 'function') {
+        window.switchMarket('forex');
+      } else if (typeof window.initializeMarketPage === 'function') {
+        window.initializeMarketPage();
+      }
+    }, 100);
   }
 });
 
@@ -976,56 +1004,75 @@ initRouting();
 /* ============================================================
    MARKET TAB SWITCHING (India / Forex)
    ============================================================ */
-(function() {
-  'use strict';
-
+function switchMarket(market) {
   const indiaTab = document.getElementById('indiaTab');
   const forexTab = document.getElementById('forexTab');
   const sessionsHeading = document.getElementById('sessionsHeading');
+  const indianMarketWrapper = document.getElementById('indianMarketWrapper');
+  const forexMarketWrapper = document.getElementById('forexMarketWrapper');
 
-  if (!indiaTab || !forexTab) return;
+  if (market === 'india') {
+    if (indiaTab) indiaTab.classList.add('market-tab-active');
+    if (forexTab) forexTab.classList.remove('market-tab-active');
+    
+    if (indianMarketWrapper) indianMarketWrapper.hidden = false;
+    if (forexMarketWrapper) forexMarketWrapper.hidden = true;
 
-  let currentMarket = 'india'; // Default to India
-
-  function switchMarket(market) {
-    if (currentMarket === market) return;
-    currentMarket = market;
-
-    if (market === 'india') {
-      // Show India tab as active
-      indiaTab.classList.add('market-tab-active');
-      forexTab.classList.remove('market-tab-active');
-      
-      // Update section heading
-      if (sessionsHeading) {
-        sessionsHeading.textContent = 'Trading Sessions';
-      }
-      
-    } else {
-      // Show Forex tab as active
-      forexTab.classList.add('market-tab-active');
-      indiaTab.classList.remove('market-tab-active');
-      
-      // Update section heading
-      if (sessionsHeading) {
-        sessionsHeading.textContent = 'Forex Sessions';
-      }
+    if (sessionsHeading) {
+      sessionsHeading.textContent = 'Trading Sessions';
     }
     
-    // Store current market for other modules to reference
-    window.currentMarketView = market;
+    if (typeof window.initIndianMarket === 'function') {
+      window.initIndianMarket();
+    }
+  } else {
+    if (forexTab) forexTab.classList.add('market-tab-active');
+    if (indiaTab) indiaTab.classList.remove('market-tab-active');
     
-    // Trigger sessions rebuild
-    const rebuildEvent = new CustomEvent('marketViewChanged', { detail: { market } });
-    window.dispatchEvent(rebuildEvent);
+    if (indianMarketWrapper) indianMarketWrapper.hidden = true;
+    if (forexMarketWrapper) forexMarketWrapper.hidden = false;
+
+    if (sessionsHeading) {
+      sessionsHeading.textContent = 'Forex Sessions';
+    }
+
+    if (typeof window.initForexMarket === 'function') {
+      window.initForexMarket();
+    }
+  }
+  
+  window.currentMarketView = market;
+  
+  const rebuildEvent = new CustomEvent('marketViewChanged', { detail: { market } });
+  window.dispatchEvent(rebuildEvent);
+}
+
+window.switchMarket = switchMarket;
+
+// Wire up market tab click listeners
+(function() {
+  const indiaTab = document.getElementById('indiaTab');
+  const forexTab = document.getElementById('forexTab');
+
+  if (indiaTab) {
+    indiaTab.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchMarket('india');
+    });
+  }
+  if (forexTab) {
+    forexTab.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchMarket('forex');
+    });
   }
 
-  // Set initial state (India selected)
-  switchMarket('india');
-
-  // Tab click handlers
-  if (indiaTab) indiaTab.addEventListener('click', () => switchMarket('india'));
-  if (forexTab) forexTab.addEventListener('click', () => switchMarket('forex'));
+  // Set initial state
+  if (window.location.hash === '#forex') {
+    switchMarket('forex');
+  } else {
+    switchMarket('india');
+  }
 }());
 
 /* ============================================================
@@ -1574,51 +1621,75 @@ renderStockHint();
    navigating away via hash change) restores the full nav.
    ============================================================ */
 (function () {
-  const header       = document.querySelector('.app-header');
-  const exitBtn      = document.getElementById('journalExitBtn');
-  const journalHash  = 'journal';
+  const header         = document.querySelector('.app-header');
+  const journalExitBtn = document.getElementById('journalExitBtn');
+  const portfolioExitBtn = document.getElementById('portfolioExitBtn');
 
-  function enterJournalMode() {
-    header.classList.add('journal-mode');
+  function enterSoloMode(mode) {
+    if (!header) return;
+    if (mode === 'journal') {
+      header.classList.add('journal-mode');
+      header.classList.remove('portfolio-mode');
+    } else if (mode === 'portfolio') {
+      header.classList.add('portfolio-mode');
+      header.classList.remove('journal-mode');
+    }
   }
 
-  function exitJournalMode() {
+  function exitSoloMode() {
+    if (!header) return;
     header.classList.remove('journal-mode');
+    header.classList.remove('portfolio-mode');
   }
 
-  // Back button — navigate to the default calculator page
-  if (exitBtn) {
-    exitBtn.addEventListener('click', () => {
+  // Back button clicks — return to calculator
+  if (journalExitBtn) {
+    journalExitBtn.addEventListener('click', () => {
       window.location.hash = 'calculator-stock';
     });
   }
 
-  // Intercept the Journal nav-tab click before the hash changes
+  if (portfolioExitBtn) {
+    portfolioExitBtn.addEventListener('click', () => {
+      window.location.hash = 'calculator-stock';
+    });
+  }
+
+  // Intercept nav-tab clicks before hashchange to eliminate flicker
   const journalNavTab = document.querySelector('.nav-tab[href="#journal"]');
   if (journalNavTab) {
     journalNavTab.addEventListener('click', (e) => {
       e.preventDefault();
-      window.location.hash = journalHash;
-      // enterJournalMode is also called by the hashchange handler below,
-      // but calling it immediately avoids a one-frame flicker.
-      enterJournalMode();
+      window.location.hash = 'journal';
+      enterSoloMode('journal');
+    });
+  }
+
+  const portfolioNavTab = document.querySelector('.nav-tab[href="#portfolio"]');
+  if (portfolioNavTab) {
+    portfolioNavTab.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.hash = 'portfolio';
+      enterSoloMode('portfolio');
     });
   }
 
   // React to hash changes (forward / back navigation, direct URL)
-  function syncJournalMode() {
+  function syncSoloNavMode() {
     const page = (window.location.hash.slice(1) || '').toLowerCase();
-    if (page === journalHash) {
-      enterJournalMode();
+    if (page === 'journal') {
+      enterSoloMode('journal');
+    } else if (page === 'portfolio') {
+      enterSoloMode('portfolio');
     } else {
-      exitJournalMode();
+      exitSoloMode();
     }
   }
 
-  window.addEventListener('hashchange', syncJournalMode);
+  window.addEventListener('hashchange', syncSoloNavMode);
 
-  // Sync on first load in case the URL already points to #journal
-  syncJournalMode();
+  // Sync on first load
+  syncSoloNavMode();
 }());
 
 
@@ -1633,10 +1704,218 @@ renderStockHint();
 (function () {
 
   /* ----------------------------------------------------------
-     Sample trade data — keyed by ISO date string YYYY-MM-DD.
-     Each entry: { trades: number, pnl: number (₹) }
-     Replace / extend with real persisted data later.
+     Detailed Trade Records per day
   ---------------------------------------------------------- */
+  const DEFAULT_DETAILED_TRADES = {
+    '2026-08-04': [
+      {
+        id: 'tr-0804-1',
+        time: '09:35 AM',
+        symbol: 'NIFTY 24800 CE',
+        type: 'Options · Weekly',
+        setup: 'Breakout',
+        entry: 142.50,
+        sl: 124.00,
+        tp: 175.00,
+        exit: 125.00,
+        qty: 150,
+        outcome: 'Loss',
+        pnl: -2625,
+        rr: '1:1.8',
+        note: 'Early entry on fake breakout above opening range high. SL hit on sharp pullback.'
+      },
+      {
+        id: 'tr-0804-2',
+        time: '11:20 AM',
+        symbol: 'BANKNIFTY 51200 PE',
+        type: 'Options · Weekly',
+        setup: 'Mean Reversion',
+        entry: 310.00,
+        sl: 295.00,
+        tp: 345.00,
+        exit: 345.00,
+        qty: 60,
+        outcome: 'Win',
+        pnl: 2100,
+        rr: '1:2.3',
+        note: 'Reversal from upper VWAP band with rejection wick. Target hit in 25 min.'
+      },
+      {
+        id: 'tr-0804-3',
+        time: '01:45 PM',
+        symbol: 'RELIANCE',
+        type: 'Equity · Intraday',
+        setup: 'Pullback 20EMA',
+        entry: 2980.00,
+        sl: 2948.00,
+        tp: 3040.00,
+        exit: 2950.00,
+        qty: 52,
+        outcome: 'Loss',
+        pnl: -1575,
+        rr: '1:1.9',
+        note: 'Market wide afternoon selloff broke 20 EMA support. Exited before deeper drop.'
+      }
+    ],
+    '2026-08-01': [
+      {
+        id: 'tr-0801-1',
+        time: '09:40 AM',
+        symbol: 'NIFTY 24750 CE',
+        type: 'Options · Weekly',
+        setup: 'Breakout',
+        entry: 165.00,
+        sl: 145.00,
+        tp: 210.00,
+        exit: 205.00,
+        qty: 100,
+        outcome: 'Win',
+        pnl: 4000,
+        rr: '1:2.2',
+        note: 'Gap up continuation. Sized 1% risk, captured 40 pts momentum rally.'
+      },
+      {
+        id: 'tr-0801-2',
+        time: '02:15 PM',
+        symbol: 'TCS',
+        type: 'Equity · CNC',
+        setup: 'Trend Follow',
+        entry: 4210.00,
+        sl: 4180.00,
+        tp: 4280.00,
+        exit: 4250.00,
+        qty: 30,
+        outcome: 'Win',
+        pnl: 1200,
+        rr: '1:1.8',
+        note: 'Clean trend day. Partial booked at target.'
+      }
+    ],
+    '2026-08-05': [
+      {
+        id: 'tr-0805-1',
+        time: '10:15 AM',
+        symbol: 'BANKNIFTY 51500 CE',
+        type: 'Options · Weekly',
+        setup: 'Breakout',
+        entry: 285.00,
+        sl: 250.00,
+        tp: 360.00,
+        exit: 348.00,
+        qty: 60,
+        outcome: 'Win',
+        pnl: 3780,
+        rr: '1:2.1',
+        note: 'Opening range breakout after morning consolidation. Full target achieved.'
+      }
+    ],
+    '2026-08-06': [
+      {
+        id: 'tr-0806-1',
+        time: '09:50 AM',
+        symbol: 'NIFTY 24900 CE',
+        type: 'Options · Weekly',
+        setup: 'Momentum',
+        entry: 120.00,
+        sl: 100.00,
+        tp: 170.00,
+        exit: 162.00,
+        qty: 150,
+        outcome: 'Win',
+        pnl: 6300,
+        rr: '1:2.4',
+        note: 'Super trend bullish signal accompanied by high institutional volume.'
+      },
+      {
+        id: 'tr-0806-2',
+        time: '02:30 PM',
+        symbol: 'INFY',
+        type: 'Equity · Intraday',
+        setup: 'Scalp',
+        entry: 1820.00,
+        sl: 1812.00,
+        tp: 1835.00,
+        exit: 1821.00,
+        qty: 100,
+        outcome: 'Win',
+        pnl: 100,
+        rr: '1:1.5',
+        note: 'Break-even trailing stop triggered on quick bounce.'
+      }
+    ],
+    '2026-08-07': [
+      {
+        id: 'tr-0807-1',
+        time: '10:45 AM',
+        symbol: 'NIFTY 24950 PE',
+        type: 'Options · Weekly',
+        setup: 'Counter Trend',
+        entry: 95.00,
+        sl: 76.00,
+        tp: 140.00,
+        exit: 76.00,
+        qty: 100,
+        outcome: 'Loss',
+        pnl: -1900,
+        rr: '1:2.3',
+        note: 'Fought strong trend. Lesson: Do not short against trending 9 EMA.'
+      }
+    ],
+    '2026-08-08': [
+      {
+        id: 'tr-0808-1',
+        time: '09:25 AM',
+        symbol: 'NIFTY 24850 CE',
+        type: 'Options · Weekly',
+        setup: 'Breakout',
+        entry: 155.00,
+        sl: 135.00,
+        tp: 205.00,
+        exit: 198.00,
+        qty: 100,
+        outcome: 'Win',
+        pnl: 4300,
+        rr: '1:2.2',
+        note: 'Textbook morning breakout above yesterday high.'
+      },
+      {
+        id: 'tr-0808-2',
+        time: '11:40 AM',
+        symbol: 'HDFCBANK',
+        type: 'Equity · CNC',
+        setup: 'Pullback',
+        entry: 1640.00,
+        sl: 1625.00,
+        tp: 1675.00,
+        exit: 1665.00,
+        qty: 112,
+        outcome: 'Win',
+        pnl: 2800,
+        rr: '1:1.9',
+        note: 'Support bounce from 50 SMA with heavy delivery volume.'
+      }
+    ]
+  };
+
+  const STORAGE_KEY_TRADES = 'riskloop_detailed_trades';
+
+  function getStoredTrades() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_TRADES);
+      if (raw) return JSON.parse(raw);
+    } catch (_) {}
+    return DEFAULT_DETAILED_TRADES;
+  }
+
+  function saveTradesToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(DETAILED_TRADES));
+    } catch (_) {}
+  }
+
+  const DETAILED_TRADES = getStoredTrades();
+
+  /* Build / sync TRADE_DATA summary map from DETAILED_TRADES + pre-seeds */
   const TRADE_DATA = {
     // July 2026
     '2026-07-01': { trades: 2, pnl:  4200 },
@@ -1680,7 +1959,15 @@ renderStockHint();
     '2026-08-22': { trades: 2, pnl:  4400 },
   };
 
-  // Publish TRADE_DATA so the performance chart module can read it
+  // Sync with DETAILED_TRADES
+  Object.keys(DETAILED_TRADES).forEach(dateKey => {
+    const list = DETAILED_TRADES[dateKey];
+    if (list && list.length > 0) {
+      const sumPnl = list.reduce((acc, t) => acc + (t.pnl || 0), 0);
+      TRADE_DATA[dateKey] = { trades: list.length, pnl: sumPnl };
+    }
+  });
+
   window.__rlTradeData = TRADE_DATA;
 
   /* ----------------------------------------------------------
@@ -1691,6 +1978,7 @@ renderStockHint();
     year:  today.getFullYear(),
     month: today.getMonth(),   // 0-indexed
   };
+  let _selectedDateKey = '2026-08-04'; // Default selected day to 4th August
 
   /* ----------------------------------------------------------
      DOM refs — resolved lazily after page load
@@ -1722,21 +2010,14 @@ renderStockHint();
 
   const DAY_MS = 86400000;
 
-  /* ----------------------------------------------------------
-     Week range helper — returns { start: Date, end: Date }
-     for the ISO week that contains `date` (Mon–Sun).
-  ---------------------------------------------------------- */
   function weekBounds(date) {
     const d = new Date(date);
-    const dow = (d.getDay() + 6) % 7; // Mon=0 … Sun=6
+    const dow = (d.getDay() + 6) % 7;
     const mon = new Date(d - dow * DAY_MS);
     const sun = new Date(+mon + 6 * DAY_MS);
     return { start: mon, end: sun };
   }
 
-  /* ----------------------------------------------------------
-     Aggregate trade data for a date range [startDate, endDate]
-  ---------------------------------------------------------- */
   function aggregateRange(startDate, endDate) {
     let totalPnl = 0;
     let tradingDays = 0;
@@ -1750,6 +2031,101 @@ renderStockHint();
       cur.setDate(cur.getDate() + 1);
     }
     return { totalPnl, tradingDays };
+  }
+
+  /* ----------------------------------------------------------
+     renderDayTrades — renders the trade cards for the selected day
+  ---------------------------------------------------------- */
+  function renderDayTrades(dateKey) {
+    _selectedDateKey = dateKey;
+    const titleEl = dom('jcalSelectedDayTitle');
+    const tradesBadge = dom('jcalMetaTrades');
+    const pnlBadge = dom('jcalMetaPnl');
+    const winrateBadge = dom('jcalMetaWinrate');
+    const listEl = dom('jcalDayTradesList');
+
+    if (!listEl) return;
+
+    // Update active highlight on calendar cells
+    document.querySelectorAll('.jcal-day').forEach(btn => {
+      btn.classList.toggle('jcal-day-selected', btn.getAttribute('data-date') === dateKey);
+    });
+
+    if (titleEl) {
+      titleEl.textContent = `Trade Notes — ${formatDateLabel(dateKey)}`;
+    }
+
+    const dayTrades = DETAILED_TRADES[dateKey] || [];
+    const count = dayTrades.length;
+
+    if (count === 0) {
+      if (tradesBadge) tradesBadge.textContent = '0 Trades';
+      if (pnlBadge) {
+        pnlBadge.textContent = '₹0';
+        pnlBadge.className = 'jcal-meta-badge jcal-meta-neutral';
+      }
+      if (winrateBadge) winrateBadge.textContent = '0% Win Rate';
+
+      listEl.innerHTML = `
+        <div class="jcal-empty-trades-notice">
+          <p>No trade notes recorded for <strong>${formatDateLabel(dateKey)}</strong>.</p>
+          <button class="jbtn-primary jbtn-sm jcal-empty-trades-btn" onclick="if(window.showTradeForm)window.showTradeForm('${dateKey}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Log a Trade for this Day
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    const totalPnl = dayTrades.reduce((acc, t) => acc + (t.pnl || 0), 0);
+    const wins = dayTrades.filter(t => t.outcome === 'Win').length;
+    const winRate = Math.round((wins / count) * 100);
+
+    if (tradesBadge) tradesBadge.textContent = `${count} Trade${count > 1 ? 's' : ''}`;
+    if (pnlBadge) {
+      pnlBadge.textContent = formatPnl(totalPnl);
+      pnlBadge.className = `jcal-meta-badge jcal-meta-pnl ${totalPnl >= 0 ? 'jcal-meta-profit' : 'jcal-meta-loss'}`;
+    }
+    if (winrateBadge) winrateBadge.textContent = `${winRate}% Win Rate`;
+
+    listEl.innerHTML = dayTrades.map((t, idx) => {
+      const isWin = t.outcome === 'Win';
+      const isLoss = t.outcome === 'Loss';
+      const pnlClass = t.pnl >= 0 ? 'jtrade-pnl-pos' : 'jtrade-pnl-neg';
+      const cardClass = isWin ? 'jtrade-win' : isLoss ? 'jtrade-loss' : '';
+      const outcomeLetter = isWin ? 'W' : isLoss ? 'L' : 'BE';
+      const outcomeBadgeClass = isWin ? 'jtrade-outcome-win' : isLoss ? 'jtrade-outcome-loss' : 'jtrade-outcome-be';
+
+      return `
+        <div class="jtrade-card ${cardClass}">
+          <div class="jtrade-side">
+            <span class="jtrade-outcome ${outcomeBadgeClass}">${outcomeLetter}</span>
+            <span class="jtrade-date">${t.time || `Trade #${idx + 1}`}</span>
+          </div>
+          <div class="jtrade-body">
+            <div class="jtrade-top">
+              <span class="jtrade-symbol">${t.symbol || 'NIFTY'}</span>
+              ${t.type ? `<span class="jtag jtag-inline">${t.type}</span>` : ''}
+              ${t.setup ? `<span class="jtrade-setup">${t.setup}</span>` : ''}
+              ${t.rr ? `<span class="jtag jtag-inline" title="Risk:Reward">R:R ${t.rr}</span>` : ''}
+            </div>
+            ${t.entry ? `
+              <div class="jtrade-levels" style="display:flex;gap:12px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);margin:4px 0;">
+                <span>Entry: ₹${t.entry}</span>
+                ${t.sl ? `<span>SL: ₹${t.sl}</span>` : ''}
+                ${t.tp ? `<span>TP: ₹${t.tp}</span>` : ''}
+                ${t.qty ? `<span>Qty: ${t.qty}</span>` : ''}
+              </div>
+            ` : ''}
+            <p class="jtrade-note">${t.note || 'No additional note provided.'}</p>
+          </div>
+          <div class="jtrade-pnl ${pnlClass}">
+            ${formatPnl(t.pnl || 0)}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   /* ----------------------------------------------------------
@@ -1789,13 +2165,13 @@ renderStockHint();
     for (let cell = 0; cell < rows * 7; cell++) {
       const dayNum = cell - firstDow + 1;
       const isCurrentMonth = dayNum >= 1 && dayNum <= daysInMonth;
-      const cellDate = isCurrentMonth ? new Date(year, month, dayNum) : null;
       const cellDow  = cell % 7; // 0=Mon … 6=Sun
       const isWeekend = cellDow >= 5;
 
       const key = isCurrentMonth ? isoDate(year, month, dayNum) : null;
       const data = key && TRADE_DATA[key];
       const isToday = key === todayKey;
+      const isSelected = key === _selectedDateKey;
 
       const div = document.createElement('button');
       div.className = [
@@ -1803,6 +2179,7 @@ renderStockHint();
         !isCurrentMonth ? 'jcal-day-empty' : '',
         isWeekend && isCurrentMonth ? 'jcal-day-weekend' : '',
         isToday ? 'jcal-day-today' : '',
+        isSelected ? 'jcal-day-selected' : '',
         data ? (data.pnl >= 0 ? 'jcal-day-profit' : 'jcal-day-loss') : '',
       ].filter(Boolean).join(' ');
 
@@ -1828,7 +2205,7 @@ renderStockHint();
           ` : ''}
         `;
 
-        // Click handler — placeholder for future trade entry UI
+        // Click on day cell -> show trade list for this day!
         div.addEventListener('click', () => onDayClick(key, dayNum, data));
       }
 
@@ -1838,10 +2215,8 @@ renderStockHint();
     // Build weekly sidebar
     renderWeeklySidebar(year, month, daysInMonth);
 
-    // Refresh the performance chart whenever the calendar re-renders
-    if (typeof window.renderPerformanceChart === 'function') {
-      window.renderPerformanceChart();
-    }
+    // Render the day trade list for currently selected date
+    renderDayTrades(_selectedDateKey || '2026-08-04');
   }
 
   /* ----------------------------------------------------------
@@ -1850,6 +2225,7 @@ renderStockHint();
   ---------------------------------------------------------- */
   function renderWeeklySidebar(year, month, daysInMonth) {
     const list = dom('jcalWeeksList');
+    if (!list) return;
     list.innerHTML = '';
 
     const seen = new Set();
@@ -1865,7 +2241,6 @@ renderStockHint();
       const dispEnd   = end.getMonth()   === month ? end   : new Date(year, month, daysInMonth);
 
       const { totalPnl, tradingDays } = aggregateRange(dispStart, dispEnd);
-
       const fmtDate = (dt) => `${dt.getDate()} ${MONTH_NAMES[dt.getMonth()].slice(0, 3)}`;
 
       const card = document.createElement('div');
@@ -1884,10 +2259,15 @@ renderStockHint();
   }
 
   /* ----------------------------------------------------------
-     Day click handler — opens the Add Trade form
+     Day click handler — opens the day's trade list below calendar
   ---------------------------------------------------------- */
   function onDayClick(dateKey) {
-    showTradeForm(dateKey);
+    _selectedDateKey = dateKey;
+    renderDayTrades(dateKey);
+    const section = dom('jcalDayTradesSection');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   /* ----------------------------------------------------------
@@ -2303,19 +2683,38 @@ Rules:
   function saveTradeEntry() {
     if (!validateForm()) return;
 
-    const pnl    = parseFloat(dom('jtfPnl').value);
-    const key    = _formDateKey;
-    const existing = TRADE_DATA[key];
+    const pnl = parseFloat(dom('jtfPnl').value) || 0;
+    const key = _formDateKey || isoDate(today.getFullYear(), today.getMonth(), today.getDate());
+    const entryVal = parseFloat(dom('jtfEntry').value) || 0;
+    const slVal = parseFloat(dom('jtfSL').value) || 0;
+    const tpVal = parseFloat(dom('jtfTP').value) || 0;
+    const rrVal = dom('jtfRR').value ? `1:${dom('jtfRR').value}` : '1:2.0';
 
-    if (existing) {
-      // Append to existing day
-      existing.trades += 1;
-      existing.pnl    += pnl;
-    } else {
-      TRADE_DATA[key] = { trades: 1, pnl };
-    }
+    const newTrade = {
+      id: `tr-${Date.now()}`,
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      symbol: dom('jtfSymbol').value.trim().toUpperCase(),
+      type: 'Intraday',
+      setup: dom('jtfSetup').value.trim(),
+      entry: entryVal,
+      sl: slVal,
+      tp: tpVal,
+      exit: tpVal,
+      qty: 1,
+      outcome: _selectedOutcome === 'Win' ? 'Win' : _selectedOutcome === 'Loss' ? 'Loss' : 'BE',
+      pnl: pnl,
+      rr: rrVal,
+      note: dom('jtfNotes').value.trim() || 'Executed according to trading plan.'
+    };
 
-    // Navigate back to calendar, re-render so the day cell updates
+    if (!DETAILED_TRADES[key]) DETAILED_TRADES[key] = [];
+    DETAILED_TRADES[key].unshift(newTrade);
+    saveTradesToStorage();
+
+    const sumPnl = DETAILED_TRADES[key].reduce((acc, t) => acc + (t.pnl || 0), 0);
+    TRADE_DATA[key] = { trades: DETAILED_TRADES[key].length, pnl: sumPnl };
+
+    _selectedDateKey = key;
     showCalendarFromForm();
   }
 
@@ -2323,18 +2722,20 @@ Rules:
      View switching — trade form
   ---------------------------------------------------------- */
   function showTradeForm(dateKey) {
-    _formDateKey = dateKey;
+    _formDateKey = dateKey || isoDate(today.getFullYear(), today.getMonth(), today.getDate());
     resetForm();
-    dom('jtfDateLabel').textContent = formatDateLabel(dateKey);
+    dom('jtfDateLabel').textContent = formatDateLabel(_formDateKey);
     dom('journalCalendar').hidden   = true;
     dom('journalTradeForm').hidden  = false;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  window.showTradeForm = showTradeForm;
+
   function showCalendarFromForm() {
     dom('journalTradeForm').hidden = true;
     dom('journalCalendar').hidden  = false;
-    renderCalendar();   // renderCalendar now also calls renderPerformanceChart()
+    renderCalendar();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -2342,30 +2743,238 @@ Rules:
      View switching
   ---------------------------------------------------------- */
   function showCalendar() {
-    dom('journalDashboard').hidden = true;
     dom('journalCalendar').hidden  = false;
-    renderCalendar();   // renderCalendar already calls renderPerformanceChart()
+    renderCalendar();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function showDashboard() {
-    dom('journalCalendar').hidden   = true;
-    dom('journalTradeForm').hidden  = true;
-    dom('journalDashboard').hidden  = false;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.renderJournalCalendar = renderCalendar;
+
+  /* ----------------------------------------------------------
+     Download Journal CSV helper
+  ---------------------------------------------------------- */
+  function downloadJournalCSV() {
+    const rows = [
+      ['Date', 'Time', 'Symbol', 'Type', 'Setup', 'Entry Price', 'Stop Loss', 'Take Profit', 'Exit Price', 'Quantity', 'Outcome', 'Risk:Reward', 'P&L (INR)', 'Notes']
+    ];
+
+    const allDates = Object.keys(DETAILED_TRADES).sort().reverse();
+    allDates.forEach(date => {
+      const trades = DETAILED_TRADES[date] || [];
+      trades.forEach(t => {
+        rows.push([
+          date,
+          t.time || '',
+          t.symbol || '',
+          t.type || '',
+          t.setup || '',
+          t.entry || '',
+          t.sl || '',
+          t.tp || '',
+          t.exit || '',
+          t.qty || '',
+          t.outcome || '',
+          t.rr || '',
+          t.pnl !== undefined ? t.pnl : '',
+          `"${(t.note || '').replace(/"/g, '""')}"`
+        ]);
+      });
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `RiskLoop_Trading_Journal_${MONTH_NAMES[calState.month]}_${calState.year}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /* ----------------------------------------------------------
+     All Trades Modal & Filter helper
+  ---------------------------------------------------------- */
+  let _activeFilter = 'ALL';
+
+  function renderAllTradesTable() {
+    const tbody = dom('jcalAllTradesTableBody');
+    const searchInput = dom('jcalAllTradesSearch');
+    const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+    if (!tbody) return;
+
+    const allTrades = [];
+    const allDates = Object.keys(DETAILED_TRADES).sort().reverse();
+    allDates.forEach(date => {
+      const trades = DETAILED_TRADES[date] || [];
+      trades.forEach(t => {
+        allTrades.push({ ...t, date });
+      });
+    });
+
+    const filtered = allTrades.filter(t => {
+      if (_activeFilter === 'WIN' && t.outcome !== 'Win') return false;
+      if (_activeFilter === 'LOSS' && t.outcome !== 'Loss') return false;
+      if (_activeFilter === 'BE' && t.outcome !== 'BE') return false;
+
+      if (query) {
+        const text = `${t.date} ${t.symbol} ${t.setup} ${t.note} ${t.type}`.toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);">
+            No trades match your search criteria.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(t => {
+      const isWin = t.outcome === 'Win';
+      const isLoss = t.outcome === 'Loss';
+      const pnlClass = t.pnl >= 0 ? 'jtrade-pnl-pos' : 'jtrade-pnl-neg';
+      const outcomeBadge = isWin
+        ? '<span class="jtrade-outcome jtrade-outcome-win" style="display:inline-flex;padding:2px 8px;font-size:10px;">W</span>'
+        : isLoss
+        ? '<span class="jtrade-outcome jtrade-outcome-loss" style="display:inline-flex;padding:2px 8px;font-size:10px;">L</span>'
+        : '<span class="jtrade-outcome jtrade-outcome-be" style="display:inline-flex;padding:2px 8px;font-size:10px;">BE</span>';
+
+      return `
+        <tr>
+          <td style="font-family:'IBM Plex Mono',monospace;white-space:nowrap;">
+            <div style="font-weight:600;color:var(--text);">${t.date}</div>
+            <div style="font-size:10.5px;color:var(--text-muted);">${t.time || ''}</div>
+          </td>
+          <td>
+            <div style="font-weight:700;color:var(--text);">${t.symbol}</div>
+            ${t.type ? `<span class="jtag jtag-inline" style="font-size:9.5px;padding:2px 6px;">${t.type}</span>` : ''}
+          </td>
+          <td>
+            <span class="jtrade-setup" style="font-size:11px;">${t.setup || '—'}</span>
+          </td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;">
+            <div>Ent: ₹${t.entry || '—'}</div>
+            <div style="color:var(--text-muted);">Exit: ₹${t.exit || '—'}</div>
+          </td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);">
+            ${t.rr ? t.rr : '—'}
+          </td>
+          <td>
+            ${outcomeBadge}
+          </td>
+          <td style="font-family:'IBM Plex Mono',monospace;font-weight:700;" class="${pnlClass}">
+            ${formatPnl(t.pnl || 0)}
+          </td>
+          <td style="font-size:11.5px;color:var(--text-muted);max-width:240px;line-height:1.4;">
+            ${t.note || '—'}
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   /* ----------------------------------------------------------
      Wire up buttons once DOM is ready
   ---------------------------------------------------------- */
   function initJournalCalendar() {
-    // "Add Trade Note" button on dashboard hero card
-    const addBtn = document.querySelector('#journalDashboard .jbtn-primary');
-    if (addBtn) addBtn.addEventListener('click', showCalendar);
+    // "Connect Broker" button in calendar header
+    const connBrokerBtn = dom('jcalConnectBrokerBtn') || document.getElementById('jcalConnectBrokerBtn');
+    if (connBrokerBtn) {
+      connBrokerBtn.addEventListener('click', () => {
+        const brokerModal = document.getElementById('brokerModal');
+        if (brokerModal) {
+          brokerModal.hidden = false;
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    }
+
+    // "Add Trade Note" button in calendar header
+    const addTradeNoteBtn = dom('jcalAddTradeNoteBtn') || document.getElementById('jcalAddTradeNoteBtn');
+    if (addTradeNoteBtn) {
+      addTradeNoteBtn.addEventListener('click', () => {
+        const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        showTradeForm(todayKey);
+      });
+    }
+
+    // Add for selected day button in Day Trades header
+    const addForDayBtn = dom('jcalAddForSelectedDayBtn');
+    if (addForDayBtn) {
+      addForDayBtn.addEventListener('click', () => {
+        showTradeForm(_selectedDateKey || isoDate(today.getFullYear(), today.getMonth(), today.getDate()));
+      });
+    }
+
+    // View All Trades modal trigger
+    const viewAllBtn = dom('jcalViewAllTradesBtn');
+    const allTradesModal = dom('jcalAllTradesModal');
+    const modalCloseBtn = dom('jcalAllTradesModalClose');
+    const modalCloseFooterBtn = dom('jcalModalCloseFooterBtn');
+
+    if (viewAllBtn && allTradesModal) {
+      viewAllBtn.addEventListener('click', () => {
+        allTradesModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        renderAllTradesTable();
+      });
+    }
+
+    function closeAllTradesModal() {
+      if (allTradesModal) {
+        allTradesModal.hidden = true;
+        document.body.style.overflow = '';
+      }
+    }
+
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeAllTradesModal);
+    if (modalCloseFooterBtn) modalCloseFooterBtn.addEventListener('click', closeAllTradesModal);
+    if (allTradesModal) {
+      allTradesModal.addEventListener('click', (e) => {
+        if (e.target === allTradesModal) closeAllTradesModal();
+      });
+    }
+
+    // Modal search
+    const searchInput = dom('jcalAllTradesSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', renderAllTradesTable);
+    }
+
+    // Modal filter pills
+    const filterPills = document.querySelectorAll('#jcalModalFilterPills .jcal-filter-pill');
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        filterPills.forEach(p => p.classList.remove('jcal-fp-active'));
+        pill.classList.add('jcal-fp-active');
+        _activeFilter = pill.dataset.filter || 'ALL';
+        renderAllTradesTable();
+      });
+    });
+
+    // Download Journal buttons
+    const dlBtn = dom('jcalDownloadJournalBtn');
+    if (dlBtn) dlBtn.addEventListener('click', downloadJournalCSV);
+
+    const modalDlBtn = dom('jcalModalDownloadBtn');
+    if (modalDlBtn) modalDlBtn.addEventListener('click', downloadJournalCSV);
 
     // Back button in calendar header
     const backBtn = dom('jcalBackBtn');
-    if (backBtn) backBtn.addEventListener('click', showDashboard);
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          location.hash = '#calculator-stock';
+        }
+      });
+    }
 
     // Trade form — Cancel and Save
     const cancelBtn = dom('jtfCancelBtn');
@@ -2376,7 +2985,8 @@ Rules:
 
     // RR auto-compute
     ['jtfEntry', 'jtfSL', 'jtfTP'].forEach(id => {
-      dom(id).addEventListener('input', updateRR);
+      const el = dom(id);
+      if (el) el.addEventListener('input', updateRR);
     });
 
     // Screenshot, outcome buttons, psych tags
@@ -2400,16 +3010,8 @@ Rules:
     dom('jcalTodayBtn').addEventListener('click', () => {
       calState.year  = today.getFullYear();
       calState.month = today.getMonth();
+      _selectedDateKey = isoDate(today.getFullYear(), today.getMonth(), today.getDate());
       renderCalendar();
-    });
-
-    // Reset to dashboard whenever the user navigates away from #journal
-    window.addEventListener('hashchange', () => {
-      const page = window.location.hash.slice(1);
-      if (page !== 'journal') {
-        dom('journalTradeForm').hidden = true;
-        showDashboard();
-      }
     });
   }
 
@@ -3329,8 +3931,8 @@ function createGenericCalculator(prefix, db) {
 }
 
 /* Wire up both calculators */
-createGenericCalculator('forex',  FOREX_DB);
-createGenericCalculator('crypto', CRYPTO_DB);
+createGenericCalculator('forex',  (typeof FOREX_DB !== 'undefined' ? FOREX_DB : (typeof window !== 'undefined' && window.FOREX_DB ? window.FOREX_DB : [])));
+createGenericCalculator('crypto', (typeof CRYPTO_DB !== 'undefined' ? CRYPTO_DB : (typeof window !== 'undefined' && window.CRYPTO_DB ? window.CRYPTO_DB : [])));
 
 
 /* ============================================================
@@ -5362,9 +5964,8 @@ function formatOffset(offset) {
   const modalClose = document.getElementById('brokerModalClose');
   const searchInput = document.getElementById('brokerSearchInput');
   const modalContent = document.getElementById('brokerModalContent');
-  const connectBrokerBtn = document.querySelector('.jbtn-ghost');
 
-  if (!modal || !connectBrokerBtn) return;
+  if (!modal) return;
 
   let filteredBrokers = [...BROKERS];
 
@@ -5422,10 +6023,14 @@ function formatOffset(offset) {
   // Open modal
   function openModal() {
     modal.hidden = false;
-    searchInput.value = '';
+    if (searchInput) {
+      searchInput.value = '';
+    }
     filteredBrokers = [...BROKERS];
     renderBrokers(filteredBrokers);
-    searchInput.focus();
+    if (searchInput) {
+      setTimeout(() => searchInput.focus(), 80);
+    }
     document.body.style.overflow = 'hidden';
   }
 
@@ -5434,6 +6039,9 @@ function formatOffset(offset) {
     modal.hidden = true;
     document.body.style.overflow = '';
   }
+
+  window.openBrokerModal = openModal;
+  window.closeBrokerModal = closeModal;
 
   // Select broker
   async function selectBroker(broker) {

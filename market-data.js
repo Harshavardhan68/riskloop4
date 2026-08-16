@@ -19,13 +19,25 @@ const CDN_BASE = 'https://cdn.jsdelivr.net/gh/YOUR_GITHUB_USERNAME/YOUR_REPO_NAM
  */
 async function fetchMarketData(filename) {
   try {
-    const url = `${CDN_BASE}${filename}`;
-    const response = await fetch(url, {
-      cache: 'no-cache', // GitHub Actions updates may need fresh data
-      headers: {
-        'Accept': 'application/json'
+    let url = `${CDN_BASE}${filename}`;
+    if (CDN_BASE.includes('YOUR_GITHUB_USERNAME') || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname) {
+      url = `./data/${filename}`;
+    }
+    
+    let response;
+    try {
+      response = await fetch(url, {
+        cache: 'no-cache',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      if (!response.ok && url !== `./data/${filename}`) {
+        response = await fetch(`./data/${filename}`);
       }
-    });
+    } catch (e) {
+      response = await fetch(`./data/${filename}`);
+    }
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

@@ -912,6 +912,8 @@
     initEarnings();
   }
 
+  window.initIndianMarket = initIndianMarket;
+
   /* ============================================================
      AUTO-INIT & HOOK INTO MARKET PAGE
      ============================================================ */

@@ -31,13 +31,23 @@
 
       <!-- Journal-only nav bar (visible only when journal-mode is active) -->
       <div class="journal-nav-bar" id="journalNavBar">
-        <button class="journal-exit-btn" id="journalExitBtn" aria-label="Back to full navigation">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-          Back
+        <button class="journal-exit-btn" id="journalExitBtn" aria-label="Back to calculator" title="Back to calculator">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
         </button>
         <a href="#journal" class="journal-tab-solo" aria-current="page">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
           Journal
+        </a>
+      </div>
+
+      <!-- Portfolio-only nav bar (visible only when portfolio-mode is active) -->
+      <div class="portfolio-nav-bar" id="portfolioNavBar">
+        <button class="journal-exit-btn" id="portfolioExitBtn" aria-label="Back to calculator" title="Back to calculator">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+        </button>
+        <a href="#portfolio" class="journal-tab-solo" aria-current="page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Portfolio
         </a>
       </div>
 
@@ -120,10 +130,10 @@
     <div class="page-container" id="marketPage" hidden>
       <!-- Market Type Tabs -->
       <div class="market-tabs" id="marketTabs">
-        <button class="market-tab market-tab-active" id="indiaTab" data-market="india">
+        <button class="market-tab market-tab-active" id="indiaTab" data-market="india" onclick="if(window.switchMarket)window.switchMarket('india')">
           🇮🇳 India
         </button>
-        <button class="market-tab" id="forexTab" data-market="forex">
+        <button class="market-tab" id="forexTab" data-market="forex" onclick="if(window.switchMarket)window.switchMarket('forex')">
           🌎 Forex
         </button>
       </div>
@@ -516,20 +526,444 @@
         </div><!-- /.indian-market-content -->
       </div><!-- /.indian-market-wrapper -->
 
+      <!-- Forex Market Content Wrapper -->
+      <div class="forex-market-wrapper" id="forexMarketWrapper" hidden>
 
+        <!-- 1. Forex Economic Calendar Section (Appears First) -->
+        <section class="market-section" id="economicCalendarForexSection">
+          <div class="section-header">
+            <div>
+              <h2 class="section-heading">Economic Calendar (Forex)</h2>
+            </div>
+            <div class="sessions-header-right">
+              <button class="calendar-tz-toggle-btn" id="forexCalendarTzToggle" title="Toggle between IST and UTC">Time: IST</button>
+              <div class="calendar-nav">
+                <span class="calendar-nav-date" id="forexCalendarNavDate">Today</span>
+              </div>
+            </div>
+          </div>
 
+          <!-- Currency Filter Pills (Focus on USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD) -->
+          <div class="forex-currency-filter-bar" id="forexCurrencyFilters">
+            <span class="forex-curr-filter-label">Currencies:</span>
+            <div class="forex-curr-pills">
+              <button class="forex-curr-btn forex-curr-btn-active" data-currency="ALL">All</button>
+              <button class="forex-curr-btn" data-currency="USD">🇺🇸 USD</button>
+              <button class="forex-curr-btn" data-currency="EUR">🇪🇺 EUR</button>
+              <button class="forex-curr-btn" data-currency="GBP">🇬🇧 GBP</button>
+              <button class="forex-curr-btn" data-currency="JPY">🇯🇵 JPY</button>
+              <button class="forex-curr-btn" data-currency="AUD">🇦🇺 AUD</button>
+              <button class="forex-curr-btn" data-currency="CAD">🇨🇦 CAD</button>
+              <button class="forex-curr-btn" data-currency="CHF">🇨🇭 CHF</button>
+              <button class="forex-curr-btn" data-currency="NZD">🇳🇿 NZD</button>
+            </div>
+          </div>
 
+          <!-- Calendar Period Tabs (Today / Tomorrow / This Week) -->
+          <div class="calendar-period-tabs" id="forexCalendarPeriodTabs">
+            <button class="calendar-tab calendar-tab-active" data-period="today">Today</button>
+            <button class="calendar-tab" data-period="tomorrow">Tomorrow</button>
+            <button class="calendar-tab" data-period="week">This Week</button>
+          </div>
 
+          <!-- Calendar Table -->
+          <div class="calendar-table-wrapper">
+            <table class="calendar-table" id="forexCalendarTable">
+              <thead>
+                <tr>
+                  <th class="cal-col-date">Date</th>
+                  <th class="cal-col-time" id="forexCalTimeHeader">Time (IST)</th>
+                  <th class="cal-col-event">Event</th>
+                  <th class="cal-col-country">Country / Currency</th>
+                  <th class="cal-col-impact">Impact</th>
+                  <th class="cal-col-previous">Previous</th>
+                  <th class="cal-col-forecast">Forecast</th>
+                  <th class="cal-col-actual">Actual</th>
+                </tr>
+              </thead>
+              <tbody id="forexCalendarTableBody">
+                <!-- Populated dynamically by forex-market.js -->
+              </tbody>
+            </table>
+          </div>
 
+          <div class="section-action">
+            <button class="view-all-btn" id="viewAllForexCalendarBtn">
+              <span>View this week's full calendar</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </section>
 
+        <!-- 2. Forex Trading Sessions (Directly Below Calendar) -->
+        <section class="market-section" id="forexTradingSessionsSection">
+          <div class="section-header">
+            <div>
+              <h2 class="section-heading">Forex Trading Sessions</h2>
+              <div id="forexActiveStatusSummary" class="forex-market-status-badge badge-open">
+                <span class="pulse-dot"></span>
+                <span>Calculating live sessions...</span>
+              </div>
+            </div>
+            <div class="sessions-header-right">
+              <div class="forex-clocks-group">
+                <div class="forex-clock-chip">
+                  <span class="clock-chip-label">UTC</span>
+                  <span class="sessions-clock" id="forexClockUTC">—</span>
+                </div>
+                <div class="forex-clock-chip">
+                  <span class="clock-chip-label">IST</span>
+                  <span class="sessions-clock" id="forexClockIST">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <!-- 4 Major Session Status Cards Grid (Sydney, Tokyo, London, New York) -->
+          <div class="forex-sessions-grid" id="forexSessionCardsGrid">
+            <!-- Populated dynamically by forex-market.js -->
+          </div>
 
+          <!-- 24-Hour Timeline Visual Bar -->
+          <div class="forex-timeline-card">
+            <div class="forex-timeline-card-header">
+              <span class="timeline-title">24-Hour Continuous Market Map</span>
+              <span class="timeline-sub">Global Forex Liquidity & Overlap Schedule (UTC)</span>
+            </div>
 
+            <div class="forex-24h-timeline-wrapper">
+              <!-- UTC Time Axis -->
+              <div class="forex-timeline-axis">
+                <span style="left: 0%;">00:00</span>
+                <span style="left: 12.5%;">03:00</span>
+                <span style="left: 25%;">06:00</span>
+                <span style="left: 37.5%;">09:00</span>
+                <span style="left: 50%;">12:00</span>
+                <span style="left: 62.5%;">15:00</span>
+                <span style="left: 75%;">18:00</span>
+                <span style="left: 87.5%;">21:00</span>
+                <span style="right: 0%;">24:00</span>
+              </div>
+
+              <!-- Session Bands Stack -->
+              <div class="forex-session-bands">
+                <!-- Sydney (22:00 - 07:00 UTC) -->
+                <div class="timeline-track">
+                  <span class="track-label">🇦🇺 Sydney</span>
+                  <div class="track-bar-area">
+                    <div class="session-band band-sydney" style="left:0%; width:29.17%;" title="Sydney: 00:00-07:00 UTC"></div>
+                    <div class="session-band band-sydney" style="left:91.67%; width:8.33%;" title="Sydney: 22:00-24:00 UTC"></div>
+                  </div>
+                </div>
+
+                <!-- Tokyo (00:00 - 09:00 UTC) -->
+                <div class="timeline-track">
+                  <span class="track-label">🇯🇵 Tokyo</span>
+                  <div class="track-bar-area">
+                    <div class="session-band band-tokyo" style="left:0%; width:37.5%;" title="Tokyo: 00:00-09:00 UTC"></div>
+                  </div>
+                </div>
+
+                <!-- London (08:00 - 17:00 UTC) -->
+                <div class="timeline-track">
+                  <span class="track-label">🇬🇧 London</span>
+                  <div class="track-bar-area">
+                    <div class="session-band band-london" style="left:33.33%; width:37.5%;" title="London: 08:00-17:00 UTC"></div>
+                  </div>
+                </div>
+
+                <!-- New York (13:00 - 22:00 UTC) -->
+                <div class="timeline-track">
+                  <span class="track-label">🇺🇸 New York</span>
+                  <div class="track-bar-area">
+                    <div class="session-band band-newyork" style="left:54.17%; width:37.5%;" title="New York: 13:00-22:00 UTC"></div>
+                  </div>
+                </div>
+
+                <!-- Overlap Highlight Overlay (London-NY: 13:00 - 17:00 UTC / 54.17% to 70.83%) -->
+                <div class="timeline-overlap-zone" style="left:54.17%; width:16.66%;" title="London-New York Overlap (13:00-17:00 UTC)">
+                  <span class="overlap-zone-tag">⚡ Peak Overlap</span>
+                </div>
+              </div>
+
+              <!-- Real-time Current Time Needle -->
+              <div class="forex-timeline-needle" id="forexTimelineNeedle" style="left: 50%;">
+                <div class="needle-line"></div>
+                <div class="needle-label" id="forexTimelineNeedleLabel">12:00 UTC</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- London-New York Overlap Prominent Highlight Card -->
+          <div class="forex-overlap-highlight-card" id="forexLondonNyCard">
+            <div class="overlap-card-left">
+              <div class="overlap-badge-row">
+                <span class="overlap-primary-badge">⚡ KEY OVERLAP</span>
+                <span class="overlap-live-indicator" id="londonNyLiveBadge" hidden>
+                  <span class="pulse-dot"></span> ACTIVE NOW
+                </span>
+              </div>
+              <h3 class="overlap-card-title">London – New York Session Overlap</h3>
+              <p class="overlap-card-desc">
+                The highest liquidity window in global finance. Over <strong>70% of total daily forex volume</strong> occurs during this 4-hour overlap (<strong>13:00 – 17:00 UTC / 18:30 – 22:30 IST</strong>), producing maximum volatility and the tightest spreads across EUR/USD, GBP/USD, and USD pairs.
+              </p>
+            </div>
+            <div class="overlap-card-stats">
+              <div class="overlap-stat-item">
+                <span class="stat-num">~70%</span>
+                <span class="stat-desc">Daily Forex Volume</span>
+              </div>
+              <div class="overlap-stat-item">
+                <span class="stat-num">4 Hours</span>
+                <span class="stat-desc">Daily Window</span>
+              </div>
+              <div class="overlap-stat-item">
+                <span class="stat-num">Tightest</span>
+                <span class="stat-desc">Bid/Ask Spreads</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Forex Currency Correlation Section (Full Page Width) -->
+        <section class="market-section" id="forexCorrelationSection">
+          <div class="section-header">
+            <div>
+              <h2 class="section-heading">Forex Currency Pair Correlations</h2>
+              <p class="section-subheading">Analyze statistical relationships between currency pairs to avoid duplicated risk and manage hedging</p>
+            </div>
+            <div class="correlation-header-actions">
+              <div class="correlation-timeframe-tabs" id="forexCorrTimeframeTabs">
+                <button class="corr-timeframe-btn corr-tf-active" data-tf="1D">1D</button>
+                <button class="corr-timeframe-btn" data-tf="1W">1W</button>
+                <button class="corr-timeframe-btn" data-tf="1M">1M</button>
+                <button class="corr-timeframe-btn" data-tf="3M">3M</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Correlation Matrix Heatmap -->
+          <div class="correlation-matrix-card">
+            <div class="correlation-matrix-scroll">
+              <table class="correlation-table" id="forexCorrelationTable">
+                <thead>
+                  <tr id="forexCorrHeaderRow">
+                    <th>Pair</th>
+                    <th>EUR/USD</th>
+                    <th>GBP/USD</th>
+                    <th>USD/JPY</th>
+                    <th>USD/CHF</th>
+                    <th>AUD/USD</th>
+                    <th>USD/CAD</th>
+                    <th>NZD/USD</th>
+                    <th>EUR/JPY</th>
+                  </tr>
+                </thead>
+                <tbody id="forexCorrelationTableBody">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Heatmap Scale Legend -->
+            <div class="correlation-legend">
+              <span class="legend-title">Correlation Scale:</span>
+              <div class="legend-scale-bar">
+                <div class="legend-step step-strong-neg"><span>-1.00</span> Strong Inverse</div>
+                <div class="legend-step step-mod-neg"><span>-0.50</span> Mod. Inverse</div>
+                <div class="legend-step step-neutral"><span>0.00</span> Uncorrelated</div>
+                <div class="legend-step step-mod-pos"><span>+0.50</span> Mod. Positive</div>
+                <div class="legend-step step-strong-pos"><span>+1.00</span> Strong Positive</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk Management Insights Grid -->
+          <div class="correlation-insights-grid">
+            <div class="corr-insight-card">
+              <div class="insight-icon-box insight-alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>
+              </div>
+              <div class="insight-body">
+                <h4 class="insight-title">Avoid Double Exposure</h4>
+                <p class="insight-desc">Buying EUR/USD & GBP/USD (+0.86) simultaneously doubles your short USD exposure. If the Dollar rallies, both trades take heavy drawdowns.</p>
+              </div>
+            </div>
+
+            <div class="corr-insight-card">
+              <div class="insight-icon-box insight-hedge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+              </div>
+              <div class="insight-body">
+                <h4 class="insight-title">Effective Hedging</h4>
+                <p class="insight-desc">EUR/USD and USD/CHF have a near-perfect inverse correlation (-0.94). Holding long positions in both hedges directional Dollar volatility.</p>
+              </div>
+            </div>
+
+            <div class="corr-insight-card">
+              <div class="insight-icon-box insight-diversify">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+              </div>
+              <div class="insight-body">
+                <h4 class="insight-title">True Diversification</h4>
+                <p class="insight-desc">Pairs with low correlation like USD/JPY & AUD/USD (-0.22) move on independent drivers (BoJ yields vs commodities), diversifying portfolio risk.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Forex Majors & Central Bank Rates -->
+        <div class="indian-market-content">
+          <div class="indian-market-main">
+            <!-- Major Forex Pairs Table -->
+            <section class="market-section">
+              <div class="section-header">
+                <h2 class="section-heading">Major Forex Pairs</h2>
+              </div>
+              <div class="movers-table-wrapper">
+                <table class="movers-table" id="forexMajorsTable">
+                  <thead>
+                    <tr>
+                      <th>Currency Pair</th>
+                      <th>Rate</th>
+                      <th>24h Change</th>
+                      <th>Spread</th>
+                      <th>24h Range (H/L)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="forexMajorsTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div class="indian-market-sidebar">
+            <!-- Central Bank Rates Section -->
+            <section class="sidebar-section">
+              <h3 class="sidebar-heading">Central Bank Interest Rates</h3>
+              <div class="cb-rates-list">
+                <div class="cb-rate-item">
+                  <div class="cb-info">
+                    <span class="cb-flag">🇺🇸</span>
+                    <div>
+                      <div class="cb-name">Federal Reserve (Fed)</div>
+                      <div class="cb-curr">USD</div>
+                    </div>
+                  </div>
+                  <div class="cb-rate-val">5.25% - 5.50%</div>
+                </div>
+                <div class="cb-rate-item">
+                  <div class="cb-info">
+                    <span class="cb-flag">🇪🇺</span>
+                    <div>
+                      <div class="cb-name">European Central Bank</div>
+                      <div class="cb-curr">EUR</div>
+                    </div>
+                  </div>
+                  <div class="cb-rate-val">3.75%</div>
+                </div>
+                <div class="cb-rate-item">
+                  <div class="cb-info">
+                    <span class="cb-flag">🇬🇧</span>
+                    <div>
+                      <div class="cb-name">Bank of England (BoE)</div>
+                      <div class="cb-curr">GBP</div>
+                    </div>
+                  </div>
+                  <div class="cb-rate-val">5.00%</div>
+                </div>
+                <div class="cb-rate-item">
+                  <div class="cb-info">
+                    <span class="cb-flag">🇯🇵</span>
+                    <div>
+                      <div class="cb-name">Bank of Japan (BoJ)</div>
+                      <div class="cb-curr">JPY</div>
+                    </div>
+                  </div>
+                  <div class="cb-rate-val">0.25%</div>
+                </div>
+                <div class="cb-rate-item">
+                  <div class="cb-info">
+                    <span class="cb-flag">🇦🇺</span>
+                    <div>
+                      <div class="cb-name">Reserve Bank of Australia</div>
+                      <div class="cb-curr">AUD</div>
+                    </div>
+                  </div>
+                  <div class="cb-rate-val">4.35%</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div><!-- /.indian-market-content -->
+
+        <!-- 5. Forex Comments & Discussion Section (Full Page Width) -->
+        <section class="market-section market-comments-section" id="forexCommentsSection">
+          <div class="comments-header">
+            <div class="comments-title-group">
+              <h2 class="section-heading">Forex Market Discussion & Trade Ideas</h2>
+              <p class="comments-subtitle">Share your macro views, session setups, and currency outlooks with the global trading community.</p>
+            </div>
+            <div class="comments-controls">
+              <select class="comment-sort-select" id="forexCommentSortSelect">
+                <option value="recent">Most Recent</option>
+                <option value="liked">Most Liked</option>
+              </select>
+              <button class="comments-refresh-btn" id="forexCommentRefreshBtn" title="Refresh comments">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Comment Composer -->
+          <div class="comment-composer" id="forexCommentComposer">
+            <div class="composer-avatar">
+              <div class="avatar-initials">FX</div>
+            </div>
+            <div class="composer-input-group">
+              <textarea 
+                class="composer-textarea" 
+                id="forexCommentTextarea"
+                placeholder="Share your thoughts on EUR/USD, GBP/USD, central banks, or session momentum..." 
+                maxlength="2000"
+                rows="3"
+              ></textarea>
+              <div class="composer-footer">
+                <div class="composer-actions-left">
+                  <button class="emoji-btn" id="forexEmojiBtn" title="Add emoji">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                      <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                      <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                  </button>
+                  <span class="char-counter" id="forexCharCounter">0/2000</span>
+                </div>
+                <button class="post-comment-btn" id="forexPostCommentBtn">
+                  Post Trade Note
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comments Feed -->
+          <div class="comments-feed" id="forexCommentsFeed">
+            <!-- Populated dynamically -->
+          </div>
+        </section>
+
+      </div><!-- /.forex-market-wrapper -->
     </div>
 
     <!-- CALCULATOR PAGE (Position Size Calculator) -->
     <div class="calculator-page-wrapper" id="calculatorPage" hidden>
-      
       <!-- Stock Calculator -->
       <main class="layout calculator-content" id="stockCalculator" hidden>
         <!-- ORDER TICKET / INPUT PANEL -->
@@ -865,256 +1299,1373 @@
     </div>
 
     <!-- STRATEGIES PAGE -->
-    <div class="page-container" id="strategiesPage" hidden>
-      <div class="page-hero">
-        <h1 class="page-title">Trading Strategies</h1>
-        <p class="page-subtitle">Strategy library and saved setups</p>
+    <div class="page-container strategies-page" id="strategiesPage" hidden>
+
+      <!-- Strategy Overview & Flow Chart Main View -->
+      <div id="stratOverviewView">
+        <!-- Top Strategies Header: Strategy Overview on Left, My Strategies on Right -->
+        <div class="strat-top-header" style="margin-bottom: 20px;">
+          <div class="strat-top-header-left">
+            <span class="strat-step-tag">Framework Architecture</span>
+            <h1 class="strat-top-title">Strategy Overview</h1>
+          </div>
+        <div class="strat-top-header-right">
+          <button class="strat-my-btn" id="stratMyStrategiesBtn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>My Strategies</span>
+          </button>
+        </div>
       </div>
-      <div class="coming-soon-card">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-        <h2>Strategies Coming Soon</h2>
-        <p>Strategy library, saved strategies, and trading notes will be available here.</p>
+
+      <!-- ═════════════════════════════════════════════════════════════
+           THE 6 STRATEGY QUESTIONS FLOW CHART
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="strat-section" id="stratSectionFlow">
+
+        <!-- Question 1 -->
+        <div class="jcard strat-flow-card">
+          <div class="strat-step-header">
+            <span class="strat-step-num">01</span>
+            <div class="strat-step-meta">
+              <span class="strat-step-tag">Foundational Principle</span>
+              <h2 class="strat-step-title">What is a Trading Strategy, and Why Do Traders Use One?</h2>
+            </div>
+          </div>
+          <div class="strat-step-body">
+            <p class="strat-step-desc">
+              A <strong>trading strategy</strong> is an immutable, predefined set of objective rules governing how a trader discovers market opportunities, executes entry triggers, sizes risk, and exits profitable or losing positions.
+            </p>
+            <div class="strat-comparison-grid">
+              <div class="strat-comp-col comp-strategy">
+                <div class="strat-comp-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Executing a Defined Strategy</span>
+                </div>
+                <ul class="strat-comp-list">
+                  <li><strong>Statistical Edge:</strong> Positive mathematical expectancy proven across 100+ sample trades.</li>
+                  <li><strong>Emotional Immunity:</strong> Eliminates fear, greed, FOMO, and revenge trading.</li>
+                  <li><strong>Capital Preservation:</strong> Sized mathematically to withstand consecutive inevitable losing streaks.</li>
+                  <li><strong>Diagnosable &amp; Measurable:</strong> Allows precise auditing in your trade journal to optimize performance.</li>
+                </ul>
+              </div>
+
+              <div class="strat-comp-col comp-random">
+                <div class="strat-comp-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  <span>Taking Random / Impulsive Trades</span>
+                </div>
+                <ul class="strat-comp-list">
+                  <li><strong>Negative Expectancy:</strong> Eroded by bid-ask spread, transaction fees, and impulsive slippage.</li>
+                  <li><strong>Emotional Rollercoaster:</strong> Chasing green candles and panic-selling pullbacks.</li>
+                  <li><strong>Variable Sizing:</strong> Bet sizes change emotionally, causing one large loss to wipe out 10 wins.</li>
+                  <li><strong>Account Ruin:</strong> Unpredictable outcomes leading to eventual capital liquidation.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="strat-takeaway-pill">
+              <span class="p-dot p-dot-green"></span>
+              <span><strong>Key Takeaway:</strong> A strategy converts trading from emotional gambling into an executable statistical business.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="strat-flow-connector">
+          <div class="strat-conn-line"></div>
+          <div class="strat-conn-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            <span>Next: Define Operating Environment</span>
+          </div>
+          <div class="strat-conn-line"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="jcard strat-flow-card">
+          <div class="strat-step-header">
+            <span class="strat-step-num">02</span>
+            <div class="strat-step-meta">
+              <span class="strat-step-tag">Market Regime &amp; Environment</span>
+              <h2 class="strat-step-title">What Market Conditions Does the Strategy Work Best In?</h2>
+            </div>
+          </div>
+          <div class="strat-step-body">
+            <p class="strat-step-desc">
+              No strategy works in all market environments. A trader must define the exact market regime, asset class, liquidity window, and timeframe where the strategy possesses a verified statistical advantage.
+            </p>
+            <div class="strat-grid-4col">
+              <div class="strat-pill-card">
+                <span class="strat-card-badge">1. Asset Class</span>
+                <strong>Market &amp; Instruments</strong>
+                <p>Equities (Cash Stocks), Index Derivatives (F&amp;O), Forex Pairs (Majors/Crosses), or Crypto.</p>
+              </div>
+
+              <div class="strat-pill-card">
+                <span class="strat-card-badge">2. Timeframe</span>
+                <strong>Resolution Alignment</strong>
+                <p>Higher Timeframe (Daily/4H/1H for structural trend) + Lower Timeframe (15m/5m/1m for trigger execution).</p>
+              </div>
+
+              <div class="strat-pill-card">
+                <span class="strat-card-badge">3. Session Liquidity</span>
+                <strong>Active Trading Window</strong>
+                <p>London Open, New York Overlap, Asian Range, or Indian Market Opening Rush (09:15 – 10:30 IST).</p>
+              </div>
+
+              <div class="strat-pill-card">
+                <span class="strat-card-badge">4. Market State</span>
+                <strong>Volatility &amp; Trend</strong>
+                <p>Strong Trending (expansion), Mean-Reverting (rangebound), High Volatility (ATR spikes), or Low Volatility (compression).</p>
+              </div>
+            </div>
+            <div class="strat-takeaway-pill">
+              <span class="p-dot p-dot-green"></span>
+              <span><strong>Key Takeaway:</strong> Never trade a trend-following system in low-volume sideways chop, or a range-fade system in violent macro breakouts.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="strat-flow-connector">
+          <div class="strat-conn-line"></div>
+          <div class="strat-conn-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            <span>Next: Identify the Pattern</span>
+          </div>
+          <div class="strat-conn-line"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="jcard strat-flow-card">
+          <div class="strat-step-header">
+            <span class="strat-step-num">03</span>
+            <div class="strat-step-meta">
+              <span class="strat-step-tag">Setup Identification</span>
+              <h2 class="strat-step-title">What Setup or Signal Identifies a Potential Trade?</h2>
+            </div>
+          </div>
+          <div class="strat-step-body">
+            <p class="strat-step-desc">
+              The setup is the preliminary structural anomaly or technical pattern indicating that an imbalance of supply and demand has occurred and a trade idea is formulating.
+            </p>
+            <div class="strat-examples-grid">
+              <div class="strat-example-item">
+                <span class="strat-ex-tag">Pattern A</span>
+                <strong>Liquidity Sweep (Turtle Soup)</strong>
+                <p>Price punches past a key high/low (PDH/PDL or equal highs) to absorb retail stops and immediately rejects back inside the range.</p>
+              </div>
+
+              <div class="strat-example-item">
+                <span class="strat-ex-tag">Pattern B</span>
+                <strong>Key Level Compression &amp; Breakout</strong>
+                <p>Multi-touch horizontal level with rising swing lows compressing beneath resistance, followed by high-volume range expansion.</p>
+              </div>
+
+              <div class="strat-example-item">
+                <span class="strat-ex-tag">Pattern C</span>
+                <strong>Value Area Pullback (VWAP / EMA)</strong>
+                <p>In a confirmed trend, price pulls back to the dynamic institutional average (VWAP / 20 EMA) on declining corrective volume.</p>
+              </div>
+            </div>
+            <div class="strat-takeaway-pill">
+              <span class="p-dot p-dot-green"></span>
+              <span><strong>Key Takeaway:</strong> If you cannot describe your setup in one clear, concise sentence, you do not have a defined setup.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="strat-flow-connector">
+          <div class="strat-conn-line"></div>
+          <div class="strat-conn-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            <span>Next: Trigger Execution</span>
+          </div>
+          <div class="strat-conn-line"></div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="jcard strat-flow-card">
+          <div class="strat-step-header">
+            <span class="strat-step-num">04</span>
+            <div class="strat-step-meta">
+              <span class="strat-step-tag">Trigger &amp; Confirmation</span>
+              <h2 class="strat-step-title">What Confirms the Entry and Where Do You Enter?</h2>
+            </div>
+          </div>
+          <div class="strat-step-body">
+            <p class="strat-step-desc">
+              Having a setup is not enough. You must establish an unequivocal, objective execution trigger. Avoid vague instructions such as <em>"enter when it looks bullish"</em> or <em>"buy when ready"</em>.
+            </p>
+            <div class="strat-checklist-box">
+              <div class="strat-check-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#48b79a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div>
+                  <strong>Candle Closure Rule:</strong> Entry only executes upon the close of the trigger bar (e.g. 5m body close above resistance level) to prevent wick traps.
+                </div>
+              </div>
+
+              <div class="strat-check-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#48b79a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div>
+                  <strong>Market Structure Shift (MSS):</strong> Lower-timeframe (1m/3m) break of the most recent opposing swing point creating displacement and imbalance (FVG).
+                </div>
+              </div>
+
+              <div class="strat-check-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#48b79a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div>
+                  <strong>Exact Limit / Market Price:</strong> Place a limit order on the 50% retracement of the displacement candle or retest level with pre-set bracket orders.
+                </div>
+              </div>
+            </div>
+            <div class="strat-takeaway-pill">
+              <span class="p-dot p-dot-green"></span>
+              <span><strong>Key Takeaway:</strong> Objective execution means every parameter is clear enough that an algorithmic bot could execute it without guessing.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="strat-flow-connector">
+          <div class="strat-conn-line"></div>
+          <div class="strat-conn-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            <span>Next: Risk Architecture</span>
+          </div>
+          <div class="strat-conn-line"></div>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="jcard strat-flow-card">
+          <div class="strat-step-header">
+            <span class="strat-step-num">05</span>
+            <div class="strat-step-meta">
+              <span class="strat-step-tag">Risk &amp; Money Management</span>
+              <h2 class="strat-step-title">Where Are the Stop Loss, Take Profit, and Risk?</h2>
+            </div>
+          </div>
+          <div class="strat-step-body">
+            <p class="strat-step-desc">
+              Trade longevity is determined exclusively by risk control. Sizing and exits must be calculated mathematically before sending the order to the exchange.
+            </p>
+            <div class="strat-risk-matrix-grid">
+              <div class="strat-risk-card">
+                <span class="strat-risk-icon">🛑</span>
+                <span class="strat-card-badge">Stop Loss (SL)</span>
+                <strong>Structural Invalidation</strong>
+                <p>Placed beyond the price point that proves the trade thesis wrong (e.g. 2 ticks beyond sweep wick or below support). Never arbitrary.</p>
+              </div>
+
+              <div class="strat-risk-card">
+                <span class="strat-risk-icon">🎯</span>
+                <span class="strat-card-badge">Take Profit (TP)</span>
+                <strong>Objective Targets</strong>
+                <p>Positioned at logical liquidity pools, opposing key levels, or structured R:R targets (TP1 at 1:2 R:R, TP2 trailing stop).</p>
+              </div>
+
+              <div class="strat-risk-card">
+                <span class="strat-risk-icon">⚖️</span>
+                <span class="strat-card-badge">Risk : Reward (R:R)</span>
+                <strong>Asymmetric Expectancy</strong>
+                <p>Minimum required R:R of 1:2 or higher. Allows strategy to generate substantial profits even with a conservative 40% win rate.</p>
+              </div>
+
+              <div class="strat-risk-card">
+                <span class="strat-risk-icon">📐</span>
+                <span class="strat-card-badge">Position Sizing</span>
+                <strong>Fixed Fractional Risk</strong>
+                <p>Calculated via <code>Position = MaxRisk / (Entry - StopLoss)</code>. Strict 0.5% – 1.0% maximum risk of total account equity per trade.</p>
+              </div>
+            </div>
+            <div class="strat-takeaway-pill">
+              <span class="p-dot p-dot-green"></span>
+              <span><strong>Key Takeaway:</strong> Position sizing ensures you survive the inevitable strings of consecutive losses that occur in any market.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="strat-flow-connector">
+          <div class="strat-conn-line"></div>
+          <div class="strat-conn-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            <span>Next: Evaluation &amp; Filters</span>
+          </div>
+          <div class="strat-conn-line"></div>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="jcard strat-flow-card">
+          <div class="strat-step-header">
+            <span class="strat-step-num">06</span>
+            <div class="strat-step-meta">
+              <span class="strat-step-tag">Validation &amp; Invalidation</span>
+              <h2 class="strat-step-title">When Should You Avoid the Trade, and How Do You Know the Strategy Works?</h2>
+            </div>
+          </div>
+          <div class="strat-step-body">
+            <p class="strat-step-desc">
+              Disciplined traders are defined by the trades they filter out. A strategy must be scientifically validated over a robust sample size before risking real capital.
+            </p>
+
+            <div class="strat-two-col-box">
+              <div class="strat-sub-box">
+                <h3 class="strat-box-header text-loss">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  When to Avoid the Trade (Trade Filters)
+                </h3>
+                <ul class="strat-comp-list">
+                  <li><strong>Red-Folder Macro Events:</strong> 15 minutes before/after major releases (CPI, NFP, RBI Interest Rate, FOMC) due to unpredictable slippage and spread spikes.</li>
+                  <li><strong>Low Volatility Midday Range:</strong> Lunchtime lull (11:30 – 13:00) with shrinking ATR and low directional volume.</li>
+                  <li><strong>Missing Confirmation Criteria:</strong> When price hits a level but fails to produce the required trigger candle or volume shift.</li>
+                </ul>
+              </div>
+
+              <div class="strat-sub-box">
+                <h3 class="strat-box-header text-profit">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  How to Validate Strategy Success (Beyond Win Rate)
+                </h3>
+                <div class="strat-metric-eval-grid">
+                  <div>
+                    <span class="p-sub-label">Mathematical Expectancy</span>
+                    <strong class="text-profit">E &gt; 0</strong>
+                    <span class="p-beh-sub">Expectancy = (Win% × AvgWin) − (Loss% × AvgLoss)</span>
+                  </div>
+                  <div>
+                    <span class="p-sub-label">Profit Factor</span>
+                    <strong class="text-accent">&gt; 1.75</strong>
+                    <span class="p-beh-sub">Gross Win / Gross Loss</span>
+                  </div>
+                  <div>
+                    <span class="p-sub-label">Sample Size</span>
+                    <strong class="text-profit">≥ 100 Trades</strong>
+                    <span class="p-beh-sub">Statistical confidence test</span>
+                  </div>
+                  <div>
+                    <span class="p-sub-label">Max Drawdown</span>
+                    <strong class="text-loss">&lt; 10% Peak-to-Trough</strong>
+                    <span class="p-beh-sub">Capital protection sanity check</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="strat-warning-card">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e0a94e" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div>
+                <strong>CRITICAL PRINCIPLE: Never evaluate a strategy on Win Rate alone!</strong>
+                <p>A strategy with a 75% Win Rate and 1:0.3 R:R loses money rapidly. A strategy with a 40% Win Rate and 1:3 R:R compounds accounts reliably. Profitability is a function of <em>Expectancy = (Win Rate × Avg Win) − (Loss Rate × Avg Loss)</em>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═════════════════════════════════════════════════════════════
+             CONNECTOR TO STRATEGY DEVELOPMENT CYCLE FLOW CHART
+             ═════════════════════════════════════════════════════════════ -->
+        <div class="strat-flow-connector" style="margin: 12px 0;">
+          <div class="strat-conn-line"></div>
+          <div class="strat-conn-badge" style="background:rgba(224,169,78,0.15);border-color:rgba(224,169,78,0.4);font-size:12.5px;padding:7px 18px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <span>STRATEGY DEVELOPMENT CYCLE FLOW CHART</span>
+          </div>
+          <div class="strat-conn-line"></div>
+        </div>
+
+        <!-- The Strategy Development Cycle Card (Directly below Q6) -->
+        <div class="jcard strat-cycle-card">
+          <div class="strat-cycle-header">
+            <div>
+              <span class="strat-step-tag">Execution Lifecycle</span>
+              <h2 class="strat-step-title">Strategy Development &amp; Validation Flow Chart</h2>
+              <p class="strat-step-desc" style="margin-bottom: 0;">The systematic lifecycle linking market conditions, pattern identification, testing, validation, and live deployment.</p>
+            </div>
+          </div>
+
+          <!-- Flow Diagram Visual Nodes -->
+          <div class="strat-diagram-container">
+            <!-- Node 1 -->
+            <div class="strat-diag-node node-primary">
+              <span class="node-num">Step 1</span>
+              <div class="node-title">MARKET CONDITIONS</div>
+              <p class="node-sub">Analyze market regime, liquidity, timeframe, volatility &amp; session dynamics.</p>
+            </div>
+
+            <div class="strat-diag-arrow-down">↓</div>
+
+            <!-- Node 2 -->
+            <div class="strat-diag-node">
+              <span class="node-num">Step 2</span>
+              <div class="node-title">OBSERVE &amp; IDENTIFY PATTERNS</div>
+              <p class="node-sub">Spot repeatable order flow imbalances, structural sweeps, and key reaction zones.</p>
+            </div>
+
+            <div class="strat-diag-arrow-down">↓</div>
+
+            <!-- Node 3 -->
+            <div class="strat-diag-node node-accent">
+              <span class="node-num">Step 3</span>
+              <div class="node-title">BUILD STRATEGY</div>
+              <p class="node-sub">Codify strict rules for setup, entry triggers, Stop Loss invalidation, R:R &amp; position sizing.</p>
+            </div>
+
+            <div class="strat-diag-arrow-down">↓</div>
+
+            <!-- Node 4 -->
+            <div class="strat-diag-node">
+              <span class="node-num">Step 4</span>
+              <div class="node-title">BACKTEST</div>
+              <p class="node-sub">Execute 100+ historical trades strictly adhering to written rules without hindsight bias.</p>
+            </div>
+
+            <div class="strat-diag-arrow-down">↓</div>
+
+            <!-- Node 5 -->
+            <div class="strat-diag-node node-decision">
+              <span class="node-num">Step 5</span>
+              <div class="node-title">EVALUATE PERFORMANCE</div>
+              <p class="node-sub">Measure Expectancy, Profit Factor (&gt;1.75), Max Drawdown (&lt;10%), and R:R distribution.</p>
+            </div>
+
+            <!-- Branching Decision Pathways -->
+            <div class="strat-diag-branches-wrap">
+              <!-- Left Branch: Not Consistent -->
+              <div class="strat-branch-col branch-left">
+                <div class="branch-pill pill-fail">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <span>NOT CONSISTENT</span>
+                </div>
+                <div class="strat-diag-arrow-down">↙</div>
+
+                <div class="strat-diag-node node-danger">
+                  <div class="node-title">RETURN &amp; IMPROVE</div>
+                  <p class="node-sub">Audit journal, refine filters, eliminate low-probability setups, and optimize position sizing.</p>
+                </div>
+
+                <div class="strat-diag-arrow-down">↓</div>
+
+                <div class="strat-diag-node node-loopback">
+                  <div class="node-title">MARKET CONDITIONS</div>
+                  <p class="node-sub">Re-evaluate environmental fit and restart testing loop.</p>
+                </div>
+              </div>
+
+              <!-- Right Branch: Consistent Edge -->
+              <div class="strat-branch-col branch-right">
+                <div class="branch-pill pill-success">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>CONSISTENT EDGE</span>
+                </div>
+                <div class="strat-diag-arrow-down">↘</div>
+
+                <div class="strat-diag-node node-success">
+                  <div class="node-title">DEMO / FORWARD TEST</div>
+                  <p class="node-sub">Execute 30–50 live forward simulation trades during live market hours.</p>
+                </div>
+
+                <div class="strat-diag-arrow-down">↓</div>
+
+                <div class="strat-diag-node">
+                  <div class="node-title">FORWARD-TEST &amp; VALIDATE</div>
+                  <p class="node-sub">Measure real slippage, broker fees, execution speed, and emotional compliance.</p>
+                </div>
+
+                <div class="strat-diag-arrow-down">↓</div>
+
+                <div class="strat-diag-node node-gold">
+                  <div class="node-title">LIVE ACCOUNT</div>
+                  <p class="node-sub">Deploy real capital starting with 0.25% - 0.5% risk per trade. Scale gradually.</p>
+                </div>
+
+                <div class="strat-diag-arrow-down">↓</div>
+
+                <div class="strat-diag-node">
+                  <div class="node-title">MONITOR &amp; IMPROVE</div>
+                  <p class="node-sub">Maintain daily RiskLoop journal, track edge decay, and perform weekly performance reviews.</p>
+                </div>
+
+                <div class="strat-diag-arrow-down">↓</div>
+
+                <div class="strat-diag-node node-loopback">
+                  <div class="node-title">MARKET CONDITIONS</div>
+                  <p class="node-sub">Continuously adapt strategy parameters as market regime evolves.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
-    </div>
+      </div><!-- /#stratOverviewView -->
+
+      <!-- ═════════════════════════════════════════════════════════════
+           MY STRATEGIES VIEW (Opened upon clicking "My Strategies")
+           ═════════════════════════════════════════════════════════════ -->
+      <div class="my-strategies-container" id="myStrategiesView" hidden>
+        <!-- Top Toolbar: Back Button + Title on Left, Backtest Button on Right (Matching Handwritten Note) -->
+        <div class="my-strat-header">
+          <div class="my-strat-header-left">
+            <button class="my-strat-back-btn" id="myStratBackBtn" type="button" title="Back to Overview">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <span>Strategy Overview</span>
+            </button>
+            <h2 class="my-strat-title">My Strategies</h2>
+          </div>
+          <div class="my-strat-header-right">
+            <button class="my-strat-backtest-btn" id="myStratTopBacktestBtn" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span>Backtest</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Strategy List Cards (1 through 7 from Handwritten Notes) -->
+        <div class="my-strat-list">
+
+          <!-- 1) XAUUSD (Gold) -->
+          <div class="jcard my-strat-card" id="stratCard1">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">1</span>
+                <h3 class="my-strat-name">XAUUSD (Gold)</h3>
+              </div>
+              <span class="jtag jtag-active">Commodity / Forex</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Intraday structural liquidity model trading key supply and demand reactions on spot gold. Identifies institutional absorption at higher timeframe key levels and enters on lower-timeframe rejection confirmation.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Timeframe:</strong> 5m execution with 15m/1h structural trend alignment.</li>
+                  <li><strong>Entry Trigger:</strong> 5m engulfing or pinbar rejection after tapping a major 4H/Daily supply or demand zone.</li>
+                  <li><strong>Stop Loss:</strong> 25–35 pips ($2.50–$3.50) strictly placed beyond the swing rejection wick.</li>
+                  <li><strong>Take Profit:</strong> TP1 at 1:2 R:R (take 50% partial), TP2 at next opposing liquidity pool.</li>
+                  <li><strong>Risk:</strong> Fixed 0.5% – 1.0% account equity.</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails1')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <!-- Backtest Breakdown (Expandable) -->
+              <div class="my-strat-bt-drawer" id="btDetails1" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">58.4%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>142</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">2.15</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 2.4</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+$8,420</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">6.8%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2) XAUUSD (Gold) (Pre London) -->
+          <div class="jcard my-strat-card" id="stratCard2">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">2</span>
+                <h3 class="my-strat-name">XAUUSD (Gold) (Pre London)</h3>
+              </div>
+              <span class="jtag jtag-active">Session Liquidity</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Asian range liquidity sweep model executed strictly between 11:30 and 13:00 IST (pre-London open). Catches trapped retail breakout traders outside the Asian high/low before the true London session directional expansion.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Time Window:</strong> 11:30 – 13:00 IST strictly.</li>
+                  <li><strong>Setup:</strong> Define Asian session range (05:30 – 11:30 IST high and low).</li>
+                  <li><strong>Entry Trigger:</strong> False breakout 5–15 pips beyond Asian boundary followed by immediate 3m/5m close back inside range.</li>
+                  <li><strong>Stop Loss:</strong> 15–20 pips beyond the sweep wick extreme.</li>
+                  <li><strong>Take Profit:</strong> Asian range midpoint (TP1) and opposing boundary (TP2, 1:2.6 R:R).</li>
+                  <li><strong>Risk:</strong> 0.5% per trade.</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails2')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <div class="my-strat-bt-drawer" id="btDetails2" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">64.2%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>118</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">2.42</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 2.6</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+$9,150</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">5.2%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3) Indexes (Sensex, NIFTY, BANKNIFTY) -->
+          <div class="jcard my-strat-card" id="stratCard3">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">3</span>
+                <h3 class="my-strat-name">Indexes (Sensex, Nifty, BankNifty)</h3>
+              </div>
+              <span class="jtag jtag-active">Index F&amp;O</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Opening Range Breakout (ORB) and institutional VWAP momentum strategy designed for Indian index derivatives (NIFTY, BANK NIFTY, SENSEX) capturing directional morning trends.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Setup:</strong> First 15-minute high and low established between 09:15 – 09:30 IST.</li>
+                  <li><strong>Entry Trigger:</strong> 5m candle body close outside the 15m range with supportive volume and BankNifty/Nifty alignment.</li>
+                  <li><strong>Stop Loss:</strong> Retest level or opposite side of the 5m trigger candle (25–35 pts Nifty / 70–90 pts BankNifty).</li>
+                  <li><strong>Take Profit:</strong> 1:2.0 minimum R:R or next major pivot / psychological strike level.</li>
+                  <li><strong>Risk:</strong> Strict 1.0% account margin.</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails3')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <div class="my-strat-bt-drawer" id="btDetails3" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">52.0%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>160</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">1.88</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 2.2</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+₹1,45,200</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">7.4%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Subheading: Strategies in Stocks -->
+          <div class="my-strat-section-divider">
+            <span class="my-strat-section-tag">Equity Markets</span>
+            <h3 class="my-strat-section-title">Strategies in Stocks</h3>
+          </div>
+
+          <!-- 4) Daily Returns, Weekly Returns -->
+          <div class="jcard my-strat-card" id="stratCard4">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">4</span>
+                <h3 class="my-strat-name">Daily Returns, Weekly Returns</h3>
+              </div>
+              <span class="jtag jtag-active">Swing Momentum</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Multi-day momentum continuation system exploiting weekly relative strength leadership in high-volume cash equities, riding institutional markup phases.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Universe:</strong> NSE/BSE Top 200 liquid stocks with Relative Volume &gt; 1.8x.</li>
+                  <li><strong>Setup:</strong> Stock breaking out to 20-day high with Weekly RSI &gt; 60 above rising 50-day SMA.</li>
+                  <li><strong>Entry Trigger:</strong> Daily candle close above 3-week base with volume expansion.</li>
+                  <li><strong>Stop Loss:</strong> Below previous 3-day swing low (3% – 4% max equity risk).</li>
+                  <li><strong>Take Profit:</strong> 1:3.0 R:R or trailing 20 EMA on daily chart.</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails4')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <div class="my-strat-bt-drawer" id="btDetails4" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">48.5%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>95</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">2.28</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 3.1</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+₹2,18,000</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">8.1%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5) Breakout & Breakdown -->
+          <div class="jcard my-strat-card" id="stratCard5">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">5</span>
+                <h3 class="my-strat-name">Breakout &amp; Breakdown</h3>
+              </div>
+              <span class="jtag jtag-active">Volatility Expansion</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Volatility Contraction Pattern (VCP) model entering high-probability directional expansions after multiple touches on horizontal support and resistance boundaries.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Setup:</strong> Minimum 3 touches on horizontal level with drying volume during compression.</li>
+                  <li><strong>Entry Trigger:</strong> Decisive candle close beyond range boundary with volume &gt; 2x 20-period moving average.</li>
+                  <li><strong>Stop Loss:</strong> Placed back inside the range midpoint (thesis invalidation).</li>
+                  <li><strong>Take Profit:</strong> 100% measured move of the channel width (1:2.5+ R:R).</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails5')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <div class="my-strat-bt-drawer" id="btDetails5" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">50.8%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>134</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">2.04</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 2.7</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+$7,680</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">6.5%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6) Trends -->
+          <div class="jcard my-strat-card" id="stratCard6">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">6</span>
+                <h3 class="my-strat-name">Trends</h3>
+              </div>
+              <span class="jtag jtag-active">Trend Following</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Moving average ribbon alignment (20/50/200 EMA) pullback strategy designed to buy dips in established institutional uptrends and sell rallies in confirmed downtrends.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Alignment:</strong> 20 EMA &gt; 50 EMA &gt; 200 EMA fanning out at a 45-degree angle.</li>
+                  <li><strong>Entry Trigger:</strong> Orderly 3-candle pullback to test 20/50 EMA followed by bullish reversal trigger candle.</li>
+                  <li><strong>Stop Loss:</strong> Placed 2 ticks below the pullback swing low and below the 50 EMA.</li>
+                  <li><strong>Take Profit:</strong> Prior swing high (1:2 R:R) with runner trailing the 20 EMA.</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails6')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <div class="my-strat-bt-drawer" id="btDetails6" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">56.2%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>178</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">2.18</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 2.3</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+$11,240</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">5.8%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Subheading: Strategies on News -->
+          <div class="my-strat-section-divider">
+            <span class="my-strat-section-tag">Macro Events</span>
+            <h3 class="my-strat-section-title">Strategies on News (High News Impact Only)</h3>
+          </div>
+
+          <!-- 7) Strategies on News (High News Impact Only) -->
+          <div class="jcard my-strat-card" id="stratCard7">
+            <div class="my-strat-card-header">
+              <div class="my-strat-num-title">
+                <span class="my-strat-badge">7</span>
+                <h3 class="my-strat-name">High-Impact News Catalyst</h3>
+              </div>
+              <span class="jtag jtag-active" style="background:rgba(224,169,78,0.15);color:#e0a94e;border-color:rgba(224,169,78,0.3);">Red Folder News</span>
+            </div>
+            <div class="my-strat-card-body">
+              <div class="my-strat-block">
+                <span class="my-strat-label">Explanation</span>
+                <p class="my-strat-text">
+                  Post-news equilibrium model designed strictly for red-folder macroeconomic catalysts (CPI, NFP, FOMC, RBI Rate Decision), capturing the secondary institutional trend after initial spread and slippage spikes subside.
+                </p>
+              </div>
+
+              <div class="my-strat-block">
+                <span class="my-strat-label">Rules</span>
+                <ul class="my-strat-rules-list">
+                  <li><strong>Release Rule:</strong> 100% cash flat during data release (0–5 mins post-news).</li>
+                  <li><strong>Setup:</strong> Mark the high and low of the initial 5-minute post-news candle.</li>
+                  <li><strong>Entry Trigger:</strong> Enter on the secondary pullback retest of the news candle extreme after liquidation wicks have cleared.</li>
+                  <li><strong>Stop Loss:</strong> Opposite side of the 5-minute post-news candle.</li>
+                  <li><strong>Take Profit:</strong> Asymmetric 1:3.0 to 1:4.0 R:R targeting macro liquidity imbalance.</li>
+                </ul>
+              </div>
+
+              <div class="my-strat-footer">
+                <button class="my-strat-view-btn" onclick="if(window.toggleBacktestDetails)window.toggleBacktestDetails('btDetails7')" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  <span>View Backtested Result</span>
+                </button>
+              </div>
+
+              <div class="my-strat-bt-drawer" id="btDetails7" hidden>
+                <div class="my-strat-bt-grid">
+                  <div class="my-bt-item"><span class="p-sub-label">Win Rate</span><strong class="text-profit">44.0%</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Total Trades</span><strong>75</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Profit Factor</span><strong class="text-profit">2.35</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Avg R:R</span><strong>1 : 3.6</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Net P&amp;L</span><strong class="text-profit">+$8,900</strong></div>
+                  <div class="my-bt-item"><span class="p-sub-label">Max Drawdown</span><strong class="text-loss">7.2%</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /#myStrategiesView -->
+
+    </div><!-- /#strategiesPage -->
 
     <!-- PORTFOLIO PAGE -->
-    <div class="page-container" id="portfolioPage" hidden>
-      <div class="page-hero">
-        <h1 class="page-title">Portfolio</h1>
-        <p class="page-subtitle">Track holdings, performance, and analytics</p>
+    <div class="page-container portfolio-page" id="portfolioPage" hidden>
+
+      <!-- Top Action Toolbar with Connected Brokers Dropdown on Left -->
+      <div class="portfolio-top-toolbar">
+        <!-- Connected Broker Dropdown (Matches Calculator Dropdown Style) -->
+        <div class="nav-dropdown portfolio-broker-dropdown" id="portfolioBrokerDropdown">
+          <button class="nav-tab nav-tab-dropdown portfolio-broker-dropdown-btn" id="portfolioBrokerDropdownBtn" type="button">
+            <span class="p-dot p-dot-green"></span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+            <span>Connected Brokers</span>
+            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu portfolio-broker-dropdown-menu" id="portfolioBrokerDropdownMenu">
+            <div class="dropdown-item portfolio-broker-item" onclick="if(window.switchPortfolioBroker)window.switchPortfolioBroker('india','Zerodha Kite');">
+              <span class="portfolio-broker-logo zerodha-logo" style="width:24px;height:24px;font-size:10px;border-radius:6px;">Z</span>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <strong style="color:var(--text);font-size:12.5px;">Zerodha Kite</strong>
+                  <span class="portfolio-status-pill status-live" style="font-size:9.5px;padding:1px 6px;">Active</span>
+                </div>
+                <div style="font-size:10.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;margin-top:2px;">
+                  <span>Margin: ₹4.82L</span>
+                  <span class="text-profit">+₹6,400</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="dropdown-item portfolio-broker-item" onclick="if(window.switchPortfolioBroker)window.switchPortfolioBroker('india','Dhan HQ');">
+              <span class="portfolio-broker-logo dhan-logo" style="width:24px;height:24px;font-size:10px;border-radius:6px;">D</span>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <strong style="color:var(--text);font-size:12.5px;">Dhan HQ</strong>
+                  <span class="portfolio-status-pill status-live" style="font-size:9.5px;padding:1px 6px;">Active</span>
+                </div>
+                <div style="font-size:10.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;margin-top:2px;">
+                  <span>Margin: ₹2.15L</span>
+                  <span class="text-profit">+₹3,800</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="dropdown-item portfolio-broker-item" onclick="if(window.switchPortfolioBroker)window.switchPortfolioBroker('forex','MetaTrader 5');">
+              <span class="portfolio-broker-logo mt-logo" style="width:24px;height:24px;font-size:10px;border-radius:6px;">MT</span>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <strong style="color:var(--text);font-size:12.5px;">MetaTrader 5</strong>
+                  <span class="portfolio-status-pill status-live" style="font-size:9.5px;padding:1px 6px;">Active</span>
+                </div>
+                <div style="font-size:10.5px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;margin-top:2px;">
+                  <span>Equity: $18.57k</span>
+                  <span class="text-profit">+$1,450</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 0;"></div>
+
+            <div class="dropdown-item" onclick="if(window.openBrokerModal)window.openBrokerModal();" style="color:var(--accent);font-size:12px;justify-content:center;padding:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>+ Connect Another Broker</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="coming-soon-card">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-        <h2>Portfolio Tracker Coming Soon</h2>
-        <p>Holdings, performance metrics, P&L tracking, and analytics will be available here.</p>
-      </div>
-    </div>
+
+      <!-- 2. Performance Overview: Top Stats Row & Radar Score / Balance Card -->
+      <section class="portfolio-section portfolio-overview-section">
+        <!-- Top Stats Row (Account Size & Today's Profit) -->
+        <div class="portfolio-top-stats-row">
+          <div class="jcard portfolio-top-stat-card">
+            <div class="portfolio-stat-hdr">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+              <span>Account Size</span>
+            </div>
+            <div class="portfolio-stat-val" id="psAccountSize">$5,000.00</div>
+          </div>
+
+          <div class="jcard portfolio-top-stat-card">
+            <div class="portfolio-stat-hdr">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              <span>Today's Profit</span>
+            </div>
+            <div class="portfolio-stat-val" id="psTodayProfit">$0.00</div>
+          </div>
+        </div>
+
+        <!-- 2-Column: Radar Score Card (Blue) + Balance & Equity Card (Dark) -->
+        <div class="portfolio-score-balance-grid">
+          <!-- Left: Blue Radar Score Card -->
+          <div class="portfolio-radar-card">
+            <div class="portfolio-radar-header">
+              <div class="portfolio-radar-brand">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <span>Score</span>
+              </div>
+            </div>
+
+            <div class="portfolio-radar-canvas-wrap">
+              <canvas id="portfolioRadarCanvas"></canvas>
+            </div>
+
+            <div class="portfolio-radar-footer">
+              <div class="portfolio-score-num" id="psRadarScore">2.84</div>
+            </div>
+          </div>
+
+          <!-- Right: Balance & Equity Card -->
+          <div class="jcard portfolio-balance-card">
+            <!-- Balance Group -->
+            <div class="portfolio-bal-group">
+              <div class="portfolio-bal-row">
+                <span class="portfolio-bal-label">Balance</span>
+                <span class="portfolio-bal-val" id="psBalanceVal">$4,631.66</span>
+              </div>
+              <div class="portfolio-slider-track">
+                <div class="portfolio-slider-bar" style="width: 78%;">
+                  <span class="portfolio-slider-handle"></span>
+                </div>
+              </div>
+              <div class="portfolio-bal-max" id="psBalanceMax">$5,065.58 Max</div>
+            </div>
+
+            <div class="portfolio-bal-divider"></div>
+
+            <!-- Equity Group -->
+            <div class="portfolio-bal-group">
+              <div class="portfolio-bal-row">
+                <span class="portfolio-bal-label">Equity</span>
+                <span class="portfolio-bal-val" id="psEquityVal">$4,631.66</span>
+              </div>
+              <div class="portfolio-slider-track">
+                <div class="portfolio-slider-bar" style="width: 78%;">
+                  <span class="portfolio-slider-handle"></span>
+                </div>
+              </div>
+              <div class="portfolio-bal-max" id="psEquityMax">$5,124.10 Max</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Graph Card (Realized Equity Growth Curve) -->
+        <div class="jcard portfolio-chart-card" style="margin-top: 16px;">
+          <div class="portfolio-chart-header">
+            <div>
+              <h3 class="portfolio-chart-title">Performance Graph</h3>
+              <p class="portfolio-chart-sub">Realized equity curve and cumulative account progression</p>
+            </div>
+            <div class="portfolio-tf-group">
+              <button class="portfolio-tf-btn" data-tf="1W" type="button">1W</button>
+              <button class="portfolio-tf-btn portfolio-tf-active" data-tf="1M" type="button">1M</button>
+              <button class="portfolio-tf-btn" data-tf="3M" type="button">3M</button>
+              <button class="portfolio-tf-btn" data-tf="1Y" type="button">1Y</button>
+              <button class="portfolio-tf-btn" data-tf="ALL" type="button">ALL</button>
+            </div>
+          </div>
+          <div class="portfolio-canvas-wrap">
+            <canvas id="portfolioPnlCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- 4 Core Metric KPI Cards Row (From Screenshot 1) -->
+        <div class="portfolio-kpi-4grid" style="margin-top: 16px;">
+          <!-- 1. Average Win -->
+          <div class="jcard portfolio-top-stat-card">
+            <div class="portfolio-stat-hdr">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              <span>Average Win</span>
+            </div>
+            <div class="portfolio-stat-val text-profit" id="pmAvgWin">$42.06</div>
+          </div>
+
+          <!-- 2. Win Ratio -->
+          <div class="jcard portfolio-top-stat-card">
+            <div class="portfolio-stat-hdr">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <span>Win Ratio</span>
+            </div>
+            <div class="portfolio-stat-val" id="pmWinRate">42.0%</div>
+          </div>
+
+          <!-- 3. Average Loss -->
+          <div class="jcard portfolio-top-stat-card">
+            <div class="portfolio-stat-hdr">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              <span>Average Loss</span>
+            </div>
+            <div class="portfolio-stat-val text-loss" id="pmAvgLoss">-$35.35</div>
+          </div>
+
+          <!-- 4. Profit Factor -->
+          <div class="jcard portfolio-top-stat-card">
+            <div class="portfolio-stat-hdr">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>Profit Factor</span>
+            </div>
+            <div class="portfolio-stat-val" id="pmProfitFactor">0.87</div>
+          </div>
+        </div>
+
+        <!-- Instrument Profit Analysis & PnL by Trade Duration (2-Column Grid) -->
+        <div class="portfolio-two-col-grid" style="margin-top: 16px;">
+          <!-- Left: Instrument Profit Analysis -->
+          <div class="jcard portfolio-chart-card">
+            <div class="portfolio-chart-header">
+              <h3 class="portfolio-chart-title">Instrument Profit Analysis</h3>
+            </div>
+            <div class="portfolio-canvas-wrap">
+              <canvas id="instrumentProfitCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Right: PnL by Trade Duration -->
+          <div class="jcard portfolio-chart-card">
+            <div class="portfolio-chart-header">
+              <h3 class="portfolio-chart-title">PnL by Trade Duration</h3>
+            </div>
+            <div class="portfolio-canvas-wrap">
+              <canvas id="pnlDurationCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Long Analysis & Short Analysis Arc Gauge Cards (From Screenshot 2) -->
+      <section class="portfolio-section">
+        <div class="portfolio-gauge-grid">
+          <!-- Long Analysis Card -->
+          <div class="jcard portfolio-gauge-card">
+            <div class="portfolio-gauge-title">Long Analysis</div>
+            <div class="portfolio-gauge-wrap">
+              <canvas id="longGaugeCanvas"></canvas>
+              <div class="portfolio-gauge-center">
+                <span class="portfolio-gauge-label">Profit</span>
+                <span class="portfolio-gauge-val text-profit" id="plsLongPnl">+$698.50</span>
+              </div>
+            </div>
+            <div class="portfolio-gauge-footer">
+              <div class="portfolio-gauge-col">
+                <span class="p-sub-label" id="plsLongWinsLabel">Wins (33)</span>
+                <span class="p-sub-val" id="plsLongWinsVal">$1,450.00</span>
+              </div>
+              <div class="portfolio-gauge-col" style="text-align: center;">
+                <span class="p-sub-label">Win Rate</span>
+                <span class="p-sub-val" id="plsLongWinRate">68.75%</span>
+              </div>
+              <div class="portfolio-gauge-col" style="text-align: right;">
+                <span class="p-sub-label" id="plsLongLossesLabel">Losses (15)</span>
+                <span class="p-sub-val text-loss" id="plsLongLossesVal">-$751.50</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Short Analysis Card -->
+          <div class="jcard portfolio-gauge-card">
+            <div class="portfolio-gauge-title">Short Analysis</div>
+            <div class="portfolio-gauge-wrap">
+              <canvas id="shortGaugeCanvas"></canvas>
+              <div class="portfolio-gauge-center">
+                <span class="portfolio-gauge-label">Profit</span>
+                <span class="portfolio-gauge-val text-loss" id="plsShortPnl">-$354.56</span>
+              </div>
+            </div>
+            <div class="portfolio-gauge-footer">
+              <div class="portfolio-gauge-col">
+                <span class="p-sub-label" id="plsShortWinsLabel">Wins (20)</span>
+                <span class="p-sub-val" id="plsShortWinsVal">$698.50</span>
+              </div>
+              <div class="portfolio-gauge-col" style="text-align: center;">
+                <span class="p-sub-label">Win Rate</span>
+                <span class="p-sub-val" id="plsShortWinRate">41.67%</span>
+              </div>
+              <div class="portfolio-gauge-col" style="text-align: right;">
+                <span class="p-sub-label" id="plsShortLossesLabel">Losses (28)</span>
+                <span class="p-sub-val text-loss" id="plsShortLossesVal">$1,053.06</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Daily Performance (Mon-Fri) & Trader Behaviour Analysis -->
+      <section class="portfolio-section">
+        <div class="portfolio-section-header">
+          <div>
+            <h2 class="portfolio-block-title">Daily Performance (Mon–Fri) &amp; Behaviour Analysis</h2>
+            <p class="portfolio-block-sub">Day-of-week win distribution and psychological rule discipline</p>
+          </div>
+        </div>
+
+        <div class="portfolio-two-col-grid">
+          <!-- Left: Weekday Performance (Mon/Tue/Wed/Thu/Fri) -->
+          <div class="jcard portfolio-weekday-box">
+            <h3 class="portfolio-sub-heading">Weekday P&amp;L &amp; Win Rate</h3>
+            <div class="portfolio-weekday-list" id="portfolioWeekdayList">
+              <!-- Rendered dynamically by portfolio.js -->
+            </div>
+          </div>
+
+          <!-- Right: Behaviour & Psychology Discipline -->
+          <div class="jcard portfolio-behaviour-box">
+            <h3 class="portfolio-sub-heading">Trader Behaviour &amp; Discipline</h3>
+            <div class="portfolio-behaviour-grid">
+              <div class="portfolio-beh-item">
+                <span class="p-beh-label">Discipline Score</span>
+                <span class="p-beh-val text-profit" id="pbDiscipline">92%</span>
+                <span class="p-beh-sub">Trading plan adherence</span>
+              </div>
+
+              <div class="portfolio-beh-item">
+                <span class="p-beh-label">Avg. Holding Time</span>
+                <span class="p-beh-val text-accent" id="pbHoldTime">38 mins</span>
+                <span class="p-beh-sub">Intraday sweet spot</span>
+              </div>
+
+              <div class="portfolio-beh-item">
+                <span class="p-beh-label">Risk Compliance</span>
+                <span class="p-beh-val text-profit" id="pbRiskCompliance">98%</span>
+                <span class="p-beh-sub">Max 1% account risk</span>
+              </div>
+
+              <div class="portfolio-beh-item">
+                <span class="p-beh-label">Revenge Trading Flags</span>
+                <span class="p-beh-val text-profit" id="pbRevengeFlags">0 Flags</span>
+                <span class="p-beh-sub">Zero emotional tilt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Broker-Specific Performance Views -->
+      <!-- A. Indian Broker Instrument Performance (Stock vs F&O) -->
+      <section class="portfolio-section" id="portfolioIndianInstrumentView">
+        <div class="portfolio-section-header">
+          <div>
+            <h2 class="portfolio-block-title">Indian Broker Instrument Performance</h2>
+            <p class="portfolio-block-sub">Equity Stocks vs Derivatives (Futures &amp; Options) breakdown</p>
+          </div>
+        </div>
+
+        <div class="portfolio-instruments-grid">
+          <!-- Stocks Card -->
+          <div class="jcard portfolio-inst-card">
+            <div class="portfolio-inst-top">
+              <div class="portfolio-inst-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>Stock (Equity)</span>
+              </div>
+              <div class="portfolio-inst-rate text-profit" id="pinsStockWinRate">68% Win Rate</div>
+            </div>
+            <div class="jstat-bar"><div class="jstat-bar-fill" style="width:68%"></div></div>
+            <div class="portfolio-inst-foot">
+              <span id="pinsStockTrades">31 trades (21W · 10L)</span>
+              <span class="text-profit" id="pinsStockPnl">+₹42,600 P&amp;L</span>
+            </div>
+          </div>
+
+          <!-- F&O Card -->
+          <div class="jcard portfolio-inst-card">
+            <div class="portfolio-inst-top">
+              <div class="portfolio-inst-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>F&amp;O (Futures &amp; Options)</span>
+              </div>
+              <div class="portfolio-inst-rate text-accent" id="pinsFoWinRate">49% Win Rate</div>
+            </div>
+            <div class="jstat-bar"><div class="jstat-bar-fill" style="width:49%"></div></div>
+            <div class="portfolio-inst-foot">
+              <span id="pinsFoTrades">51 trades (25W · 26L)</span>
+              <span class="text-profit" id="pinsFoPnl">+₹50,600 P&amp;L</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- B. Forex Broker Session Performance View (Screenshot 1) -->
+      <section class="portfolio-section" id="portfolioForexSessionView" hidden>
+        <div class="jcard portfolio-session-card">
+          <div class="portfolio-session-label">SESSION WIN RATES</div>
+          <div class="portfolio-session-list" id="portfolioSessionList">
+            <div class="portfolio-session-row">
+              <div class="portfolio-session-hdr">
+                <span class="portfolio-session-name">New York</span>
+                <span class="portfolio-session-rate">47.3%</span>
+              </div>
+              <div class="portfolio-session-bar-track">
+                <div class="portfolio-session-bar-fill" style="width: 47.3%;"></div>
+              </div>
+            </div>
+
+            <div class="portfolio-session-row">
+              <div class="portfolio-session-hdr">
+                <span class="portfolio-session-name">London</span>
+                <span class="portfolio-session-rate">41.9%</span>
+              </div>
+              <div class="portfolio-session-bar-track">
+                <div class="portfolio-session-bar-fill" style="width: 41.9%;"></div>
+              </div>
+            </div>
+
+            <div class="portfolio-session-row">
+              <div class="portfolio-session-hdr">
+                <span class="portfolio-session-name">Asia</span>
+                <span class="portfolio-session-rate">52.4%</span>
+              </div>
+              <div class="portfolio-session-bar-track">
+                <div class="portfolio-session-bar-fill" style="width: 52.4%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Strategies Review Section (Must be in last) -->
+      <section class="portfolio-section portfolio-strategy-review-section">
+        <div class="portfolio-section-header">
+          <div>
+            <h2 class="portfolio-block-title">Strategies Review</h2>
+            <p class="portfolio-block-sub">In-depth statistical validation of individual trading models &amp; setups</p>
+          </div>
+        </div>
+
+        <div class="jcard portfolio-table-card">
+          <div class="portfolio-table-wrap">
+            <table class="portfolio-table">
+              <thead>
+                <tr>
+                  <th>Strategy / Setup</th>
+                  <th>Win Rate</th>
+                  <th>Total Trades</th>
+                  <th>Avg. R:R</th>
+                  <th>Profit Factor</th>
+                  <th>Net Realized P&amp;L</th>
+                  <th>Edge Status</th>
+                </tr>
+              </thead>
+              <tbody id="portfolioStrategyTableBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /#portfolioPage -->
 
     <!-- JOURNAL PAGE -->
     <div class="page-container journal-page" id="journalPage" hidden>
 
-    <!-- ── JOURNAL DASHBOARD VIEW ── -->
-    <div id="journalDashboard">
+      <!-- ── JOURNAL CALENDAR VIEW (Direct Daily Summary) ── -->
+      <div id="journalCalendar">
 
-      <!-- Hero -->
-      <div class="page-hero">
-        <h1 class="page-title">Trading Journal</h1>
-        <p class="page-subtitle">Track every trade. Understand every edge.</p>
-      </div>
-
-      <!-- Top section: Performance hero + 3 summary cards -->
-      <div class="journal-top-grid">
-
-        <!-- Left: Performance Intelligence hero card -->
-        <div class="jcard jcard-hero">
-          <span class="jcard-badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            Performance Intelligence
-          </span>
-          <h2 class="jcard-heading">Turn every trade into<br>a learning loop.</h2>
-          <p class="jcard-desc">Log every trade, capture your reasoning, and let the data reveal patterns you can't see in the moment. Your journal is your most honest coach.</p>
-          <div class="jcard-actions">
-            <button class="jbtn-ghost">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
-              Connect Broker
-            </button>
-            <button class="jbtn-primary">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              Add Trade Note
-            </button>
-          </div>
-          <!-- Decorative ring -->
-          <div class="jcard-deco" aria-hidden="true">
-            <div class="jdeco-ring jdeco-ring-1"></div>
-            <div class="jdeco-ring jdeco-ring-2"></div>
-          </div>
-        </div>
-
-        <!-- Right: 3 summary cards stacked -->
-        <div class="journal-summary-stack">
-
-          <!-- Win Rate -->
-          <div class="jcard jcard-stat">
-            <div class="jstat-label">
-              <span class="jstat-dot jstat-dot-profit"></span>
-              Win Rate
+        <!-- Calendar header -->
+        <div class="jcal-header">
+          <div class="jcal-header-left">
+            <div class="jcal-title-block">
+              <h2 class="jcal-title">Daily Summary</h2>
+              <span class="jcal-month-label" id="jcalMonthLabel">August 2026</span>
             </div>
-            <div class="jstat-value jstat-value-profit">68<span class="jstat-unit">%</span></div>
-            <div class="jstat-bar">
-              <div class="jstat-bar-fill" style="width:68%"></div>
-            </div>
-            <div class="jstat-sub">34 wins · 16 losses · 50 trades</div>
           </div>
+          <div class="jcal-header-right">
+            <div class="jcal-summary-pills">
+              <!-- Connect Broker on top of Total P&L -->
+              <div class="jcal-stat-col">
+                <button class="jbtn-ghost jcal-header-btn" id="jcalConnectBrokerBtn" title="Connect Broker">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+                  Connect Broker
+                </button>
+                <div class="jcal-pill">
+                  <span class="jcal-pill-label">Total P&amp;L</span>
+                  <span class="jcal-pill-value" id="jcalTotalPnl">—</span>
+                </div>
+              </div>
 
-          <!-- Avg R:R -->
-          <div class="jcard jcard-stat">
-            <div class="jstat-label">
-              <span class="jstat-dot jstat-dot-accent"></span>
-              Avg. R:R
-            </div>
-            <div class="jstat-value jstat-value-accent">1<span class="jstat-colon">:</span>2.4</div>
-            <div class="jstat-bar">
-              <div class="jstat-bar-fill jstat-bar-accent" style="width:80%"></div>
-            </div>
-            <div class="jstat-sub">Reward exceeds risk on avg.</div>
-          </div>
-
-          <!-- Focus -->
-          <div class="jcard jcard-stat">
-            <div class="jstat-label">
-              <span class="jstat-dot jstat-dot-muted"></span>
-              Focus
-            </div>
-            <div class="jstat-value jstat-value-text">NIFTY<span class="jstat-unit-sm"> F&amp;O</span></div>
-            <div class="jstat-tags">
-              <span class="jtag jtag-active">NIFTY</span>
-              <span class="jtag">BANKNIFTY</span>
-              <span class="jtag">RELIANCE</span>
-            </div>
-            <div class="jstat-sub">Top instrument this month</div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Stats row: 4 cards -->
-      <div class="journal-stats-row">
-
-        <div class="jcard jcard-metric">
-          <div class="jmetric-icon jmetric-icon-blue">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          </div>
-          <div class="jmetric-label">Total Trades</div>
-          <div class="jmetric-value">50</div>
-          <div class="jmetric-delta jmetric-delta-up">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-            +8 this month
-          </div>
-        </div>
-
-        <div class="jcard jcard-metric">
-          <div class="jmetric-icon jmetric-icon-profit">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </div>
-          <div class="jmetric-label">Net P&amp;L</div>
-          <div class="jmetric-value jmetric-profit">+₹48,200</div>
-          <div class="jmetric-delta jmetric-delta-up">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-            +₹12,400 this month
-          </div>
-        </div>
-
-        <div class="jcard jcard-metric">
-          <div class="jmetric-icon jmetric-icon-warn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
-          </div>
-          <div class="jmetric-label">Avg. Risk</div>
-          <div class="jmetric-value">0.8<span class="jmetric-unit">%</span></div>
-          <div class="jmetric-delta jmetric-delta-neutral">Per trade of account</div>
-        </div>
-
-        <div class="jcard jcard-metric">
-          <div class="jmetric-icon jmetric-icon-accent">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          </div>
-          <div class="jmetric-label">Best Setup</div>
-          <div class="jmetric-value jmetric-accent">Breakout</div>
-          <div class="jmetric-delta jmetric-delta-up">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-            76% win rate
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Recent trades teaser -->
-      <div class="journal-recent-header">
-        <h3 class="journal-section-title">Recent Trade Notes</h3>
-        <button class="jbtn-ghost jbtn-sm">View all</button>
-      </div>
-
-      <div class="journal-trades-list">
-
-        <div class="jtrade-card jtrade-win">
-          <div class="jtrade-side">
-            <span class="jtrade-outcome jtrade-outcome-win">W</span>
-            <span class="jtrade-date">Today</span>
-          </div>
-          <div class="jtrade-body">
-            <div class="jtrade-top">
-              <span class="jtrade-symbol">NIFTY</span>
-              <span class="jtag jtag-inline">CE · Weekly</span>
-              <span class="jtrade-setup">Breakout</span>
-            </div>
-            <p class="jtrade-note">Clean breakout above 24,800 resistance. Entered on retest, SL below breakout candle. Target hit in 40 min.</p>
-          </div>
-          <div class="jtrade-pnl jtrade-pnl-pos">+₹4,200</div>
-        </div>
-
-        <div class="jtrade-card jtrade-loss">
-          <div class="jtrade-side">
-            <span class="jtrade-outcome jtrade-outcome-loss">L</span>
-            <span class="jtrade-date">Yesterday</span>
-          </div>
-          <div class="jtrade-body">
-            <div class="jtrade-top">
-              <span class="jtrade-symbol">BANKNIFTY</span>
-              <span class="jtag jtag-inline">PE · Monthly</span>
-              <span class="jtrade-setup">Mean Reversion</span>
-            </div>
-            <p class="jtrade-note">Anticipated reversal from upper Bollinger band. News-driven spike stopped me out. Should have waited for candle close.</p>
-          </div>
-          <div class="jtrade-pnl jtrade-pnl-neg">−₹1,800</div>
-        </div>
-
-        <div class="jtrade-card jtrade-win">
-          <div class="jtrade-side">
-            <span class="jtrade-outcome jtrade-outcome-win">W</span>
-            <span class="jtrade-date">2 days ago</span>
-          </div>
-          <div class="jtrade-body">
-            <div class="jtrade-top">
-              <span class="jtrade-symbol">RELIANCE</span>
-              <span class="jtag jtag-inline">Stock · CNC</span>
-              <span class="jtrade-setup">Trend Follow</span>
-            </div>
-            <p class="jtrade-note">Strong uptrend with higher highs. Entered pullback to 20EMA. Position sized to 0.8% risk. Textbook execution.</p>
-          </div>
-          <div class="jtrade-pnl jtrade-pnl-pos">+₹6,750</div>
-        </div>
-
-      </div>
-
-    </div><!-- /#journalDashboard -->
-
-    <!-- ── JOURNAL CALENDAR VIEW ── -->
-    <div id="journalCalendar" hidden>
-
-      <!-- Calendar header -->
-      <div class="jcal-header">
-        <div class="jcal-header-left">
-          <button class="jcal-back-btn" id="jcalBackBtn" aria-label="Back to journal dashboard">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
-            Back
-          </button>
-          <div class="jcal-title-block">
-            <h2 class="jcal-title">Daily Summary</h2>
-            <span class="jcal-month-label" id="jcalMonthLabel">August 2026</span>
-          </div>
-        </div>
-        <div class="jcal-header-right">
-          <div class="jcal-summary-pills">
-            <div class="jcal-pill">
-              <span class="jcal-pill-label">Total P&amp;L</span>
-              <span class="jcal-pill-value" id="jcalTotalPnl">—</span>
-            </div>
-            <div class="jcal-pill">
-              <span class="jcal-pill-label">Trading Days</span>
-              <span class="jcal-pill-value jcal-pill-neutral" id="jcalTradingDays">—</span>
+              <!-- Add Trade Note on top of Trading Days -->
+              <div class="jcal-stat-col">
+                <button class="jbtn-primary jcal-header-btn" id="jcalAddTradeNoteBtn" title="Add Trade Note">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  + Add Trade Note
+                </button>
+                <div class="jcal-pill">
+                  <span class="jcal-pill-label">Trading Days</span>
+                  <span class="jcal-pill-value jcal-pill-neutral" id="jcalTradingDays">—</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <!-- Month navigation -->
       <div class="jcal-nav">
@@ -1156,85 +2707,99 @@
 
       </div><!-- /.jcal-body -->
 
-      <!-- ── PERFORMANCE SECTION ── -->
-      <section class="jperf-section">
-        <div class="jperf-card">
-
-          <!-- Card header -->
-          <div class="jperf-header">
-            <div class="jperf-title-group">
-              <div class="jperf-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-              </div>
-              <div>
-                <h3 class="jperf-title">Performance</h3>
-                <p class="jperf-subtitle">Account balance over time</p>
-              </div>
-            </div>
-            <div class="jperf-controls">
-              <div class="jperf-pick-wrap">
-                <button class="jperf-pick-btn" id="jperfPickBtn" type="button">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                  <span id="jperfPickLabel">All time</span>
-                  <svg class="jperf-pick-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <div class="jperf-pick-popover" id="jperfPickPopover" hidden>
-                  <div class="jperf-pick-row">
-                    <label class="jperf-pick-label" for="jperfFrom">From</label>
-                    <input type="date" id="jperfFrom" class="jperf-date-input" aria-label="From date" />
-                  </div>
-                  <div class="jperf-pick-row">
-                    <label class="jperf-pick-label" for="jperfTo">To</label>
-                    <input type="date" id="jperfTo" class="jperf-date-input" aria-label="To date" />
-                  </div>
-                  <div class="jperf-pick-actions">
-                    <button class="jperf-pick-apply" id="jperfPickApply" type="button">Apply</button>
-                    <button class="jperf-pick-clear" id="jperfPickClear" type="button">All time</button>
-                  </div>
-                </div>
-              </div>
+      <!-- ── DAY TRADES SECTION (Opens when clicking any calendar day, e.g. 4th August) ── -->
+      <section class="jcal-day-trades-section" id="jcalDayTradesSection">
+        <div class="jcal-day-trades-header">
+          <div class="jcal-day-trades-title-wrap">
+            <h3 class="jcal-day-trades-title" id="jcalSelectedDayTitle">Trade Notes — Tuesday, 4 August 2026</h3>
+            <div class="jcal-day-trades-meta" id="jcalSelectedDayMeta">
+              <span class="jcal-meta-badge jcal-meta-trades" id="jcalMetaTrades">3 Trades</span>
+              <span class="jcal-meta-badge jcal-meta-pnl jcal-meta-loss" id="jcalMetaPnl">−₹2,100</span>
+              <span class="jcal-meta-badge jcal-meta-winrate" id="jcalMetaWinrate">33% Win Rate</span>
             </div>
           </div>
+          <button class="jbtn-primary jbtn-sm jcal-add-to-day-btn" id="jcalAddForSelectedDayBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            + Add Note for this Day
+          </button>
+        </div>
 
-          <!-- Summary pills row -->
-          <div class="jperf-pills">
-            <div class="jperf-pill">
-              <span class="jperf-pill-label">Starting Balance</span>
-              <span class="jperf-pill-value" id="jperfStartBal">₹5,00,000</span>
-            </div>
-            <div class="jperf-pill">
-              <span class="jperf-pill-label">Current Balance</span>
-              <span class="jperf-pill-value" id="jperfCurBal">—</span>
-            </div>
-            <div class="jperf-pill">
-              <span class="jperf-pill-label">Net Change</span>
-              <span class="jperf-pill-value" id="jperfNetChange">—</span>
-            </div>
-            <div class="jperf-pill">
-              <span class="jperf-pill-label">Return</span>
-              <span class="jperf-pill-value" id="jperfReturn">—</span>
-            </div>
-            <div class="jperf-pill">
-              <span class="jperf-pill-label">Max Drawdown</span>
-              <span class="jperf-pill-value" id="jperfDrawdown">—</span>
-            </div>
-          </div>
+        <!-- List of trade cards for selected day -->
+        <div class="jcal-day-trades-list" id="jcalDayTradesList">
+          <!-- Populated dynamically by JS -->
+        </div>
 
-          <!-- Canvas chart -->
-          <div class="jperf-canvas-wrap">
-            <canvas id="jperfCanvas" class="jperf-canvas"></canvas>
-            <!-- Hover tooltip -->
-            <div class="jperf-tooltip" id="jperfTooltip" hidden>
-              <div class="jperf-tooltip-date" id="jperfTooltipDate"></div>
-              <div class="jperf-tooltip-bal" id="jperfTooltipBal"></div>
-              <div class="jperf-tooltip-pnl" id="jperfTooltipPnl"></div>
-            </div>
-          </div>
+        <!-- Action Footer with "View All Trades" and "Download Journal" -->
+        <div class="jcal-trades-actions-footer">
+          <button class="jcal-footer-action-btn jcal-view-all-btn" id="jcalViewAllTradesBtn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span>View All Trades</span>
+          </button>
 
-          <p class="jperf-empty" id="jperfEmpty" hidden>No trade data in the selected range. Add trades using the calendar above.</p>
-
+          <button class="jcal-footer-action-btn jcal-download-btn" id="jcalDownloadJournalBtn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download Journal (CSV)</span>
+          </button>
         </div>
       </section>
+
+      <!-- ── FULL TRADES MODAL / EXPANDED VIEW (When "View All Trades" is clicked) ── -->
+      <div class="modal-overlay" id="jcalAllTradesModal" hidden>
+        <div class="modal-card jcal-all-trades-modal-card">
+          <div class="modal-header">
+            <div class="modal-title-group">
+              <h3 class="modal-title">All Trade Logs</h3>
+              <p class="modal-sub">Comprehensive trading journal records across all sessions</p>
+            </div>
+            <button class="modal-close-btn" id="jcalAllTradesModalClose" aria-label="Close modal" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <!-- Filter & Search toolbar -->
+          <div class="jcal-modal-toolbar">
+            <div class="jcal-modal-search-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" id="jcalAllTradesSearch" placeholder="Search by symbol, setup, or notes..." />
+            </div>
+            <div class="jcal-modal-filter-pills" id="jcalModalFilterPills">
+              <button class="jcal-filter-pill jcal-fp-active" data-filter="ALL" type="button">All</button>
+              <button class="jcal-filter-pill" data-filter="WIN" type="button">Wins</button>
+              <button class="jcal-filter-pill" data-filter="LOSS" type="button">Losses</button>
+              <button class="jcal-filter-pill" data-filter="BE" type="button">Break-even</button>
+            </div>
+          </div>
+
+          <!-- All Trades Table -->
+          <div class="jcal-all-trades-table-wrap">
+            <table class="jcal-all-trades-table">
+              <thead>
+                <tr>
+                  <th>Date &amp; Time</th>
+                  <th>Symbol</th>
+                  <th>Setup</th>
+                  <th>Entry / Exit</th>
+                  <th>R:R</th>
+                  <th>Outcome</th>
+                  <th>P&amp;L</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="jcalAllTradesTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="modal-footer jcal-modal-footer">
+            <button class="jbtn-ghost jbtn-sm" id="jcalModalDownloadBtn" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download CSV
+            </button>
+            <button class="jbtn-primary jbtn-sm" id="jcalModalCloseFooterBtn" type="button">Close</button>
+          </div>
+        </div>
+      </div>
 
     </div><!-- /#journalCalendar -->
 
@@ -1713,6 +3278,9 @@
   <script src="script.js"></script>
   <script src="market-data.js"></script>
   <script src="indian-market.js"></script>
+  <script src="forex-market.js"></script>
   <script src="market-comments.js"></script>
+  <script src="portfolio.js"></script>
+  <script src="strategies.js"></script>
 </body>
 </html>
