@@ -4603,17 +4603,192 @@ html, body {
   box-shadow: var(--clay-raised);
 }
 
-.jcal-download-btn {
-  background: linear-gradient(135deg, rgba(224, 169, 78, 0.15), rgba(72, 183, 154, 0.15));
-  color: var(--text);
-  border-color: rgba(224, 169, 78, 0.3);
+.jcal-download-dropdown-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
 }
 
-.jcal-download-btn:hover {
-  background: linear-gradient(135deg, rgba(224, 169, 78, 0.25), rgba(72, 183, 154, 0.25));
-  color: var(--accent);
-  transform: translateY(-1px);
-  box-shadow: var(--clay-raised);
+.jcal-download-dropdown-wrap .jcal-download-btn {
+  width: 100%;
+}
+
+.jcal-download-chevron {
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.jcal-download-dropdown-wrap.dropdown-active .jcal-download-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Small Tab Section Popover for Download ── */
+.jcal-download-popover {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(224, 169, 78, 0.15);
+  padding: 16px;
+  z-index: 500;
+  animation: popoverFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.jcal-download-popover[hidden] {
+  display: none !important;
+}
+
+@keyframes popoverFadeIn {
+  0% { opacity: 0; transform: translateY(8px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.jcal-dl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.jcal-dl-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.jcal-dl-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.jcal-dl-close-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.jcal-dl-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.jcal-dl-tab {
+  padding: 7px 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.jcal-dl-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.jcal-dl-tab-active {
+  background: var(--surface-2) !important;
+  color: var(--accent) !important;
+  box-shadow: var(--clay-raised-sm), var(--clay-edge);
+  font-weight: 700;
+}
+
+.jcal-dl-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.jcal-dl-range-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 14px 0;
+  line-height: 1.4;
+}
+
+.jcal-dl-execute-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.jcal-dl-custom-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jcal-dl-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.jcal-dl-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.jcal-dl-date-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.jcal-dl-date-field input {
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.jcal-dl-date-field input:focus {
+  border-color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .jcal-download-popover {
+    width: 100%;
+    right: 0;
+    left: 0;
+  }
+  .jcal-dl-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* ── All Trades Modal ── */
@@ -11319,5 +11494,992 @@ html, body {
   font-size: 14px;
   font-weight: 700;
 }
+
+/* ============================================================
+   HEADER RIGHT CLUSTER (AUTH BUTTONS ABOVE LIGHT TAB)
+   ============================================================ */
+.header-right-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.header-auth-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-login-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.auth-login-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(224, 169, 78, 0.35);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.auth-signin-btn {
+  background: rgba(224, 169, 78, 0.12);
+  border: 1px solid rgba(224, 169, 78, 0.4);
+  color: var(--accent);
+}
+
+.auth-signin-btn:hover {
+  background: rgba(224, 169, 78, 0.22);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(224, 169, 78, 0.2);
+}
+
+/* ============================================================
+   AUTH MODAL STYLES
+   ============================================================ */
+.auth-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.auth-modal-backdrop[hidden] {
+  display: none !important;
+}
+
+.auth-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(224, 169, 78, 0.15);
+  overflow: hidden;
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.auth-modal-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-modal-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.auth-modal-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 1px 0 0 0;
+}
+
+.auth-modal-close {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.auth-modal-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border);
+}
+
+.auth-tab-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 8px 16px 0 16px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.01);
+  border-bottom: 1px solid var(--border);
+}
+
+.auth-tab-btn {
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab-btn:hover {
+  color: var(--text);
+}
+
+.auth-tab-btn.auth-tab-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.auth-modal-body {
+  padding: 22px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-remember-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auth-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(224, 169, 78, 0.25), rgba(224, 169, 78, 0.1));
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  color: var(--accent);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+  background: linear-gradient(135deg, rgba(224, 169, 78, 0.35), rgba(224, 169, 78, 0.18));
+  box-shadow: 0 4px 14px rgba(224, 169, 78, 0.3);
+  transform: translateY(-1px);
+}
+
+.auth-toast-msg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: rgba(72, 183, 154, 0.1);
+  border: 1px solid rgba(72, 183, 154, 0.35);
+  border-radius: 8px;
+  color: #48b79a;
+  font-size: 12px;
+  line-height: 1.4;
+  animation: fadeIn 0.2s ease;
+}
+
+/* ============================================================
+   SUPPORT TAB (RIGHT SIDE BELOW OF THE PAGE - JOURNAL TAB UI)
+   ============================================================ */
+.floating-support-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+}
+
+.floating-support-tab {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  font-family: 'Inter', sans-serif !important;
+  color: var(--text) !important;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--clay-raised-sm), var(--clay-edge) !important;
+  cursor: pointer !important;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.floating-support-tab svg {
+  flex-shrink: 0 !important;
+  opacity: 1 !important;
+  color: var(--accent) !important;
+  transition: opacity 0.2s ease, transform 0.2s ease !important;
+}
+
+.floating-support-tab:hover {
+  color: var(--accent) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--clay-raised), var(--clay-edge) !important;
+  background: var(--surface-2) !important;
+}
+
+.floating-support-tab:active {
+  transform: translateY(0) !important;
+  box-shadow: var(--clay-sunken-sm) !important;
+}
+
+/* ============================================================
+   INTERACTIVE SUPPORT MODAL STYLES
+   ============================================================ */
+.support-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.support-modal-backdrop[hidden] {
+  display: none !important;
+}
+
+.support-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(224, 169, 78, 0.15);
+  overflow: hidden;
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+  0% { opacity: 0; transform: scale(0.94) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.support-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.support-modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.support-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(224, 169, 78, 0.12);
+  border: 1px solid rgba(224, 169, 78, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.support-modal-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.support-modal-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.support-modal-close {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.support-modal-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border);
+}
+
+.support-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.support-channels-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.support-channel-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.support-channel-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(224, 169, 78, 0.35);
+  transform: translateY(-1px);
+}
+
+.channel-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.channel-info strong {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.channel-info span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.support-ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.support-form-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.support-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.support-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.support-field label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.support-field input,
+.support-field select,
+.support-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.support-field input:focus,
+.support-field select:focus,
+.support-field textarea:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.support-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, rgba(224, 169, 78, 0.25), rgba(224, 169, 78, 0.1));
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  color: var(--accent);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.support-submit-btn:hover {
+  background: linear-gradient(135deg, rgba(224, 169, 78, 0.35), rgba(224, 169, 78, 0.18));
+  box-shadow: 0 4px 14px rgba(224, 169, 78, 0.3);
+  transform: translateY(-1px);
+}
+
+.support-feedback-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(72, 183, 154, 0.1);
+  border: 1px solid rgba(72, 183, 154, 0.35);
+  border-radius: 8px;
+  color: #48b79a;
+  font-size: 12px;
+  line-height: 1.4;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (max-width: 600px) {
+  .support-form-row,
+  .support-channels-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .floating-support-btn span.floating-support-label {
+    display: none;
+  }
+  
+  .floating-support-btn {
+    padding: 12px;
+    border-radius: 50%;
+  }
+}
+
+/* ============================================================
+   IPO DASHBOARD STYLES
+   ============================================================ */
+.ipo-container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 10px 0 40px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.ipo-header {
+  margin-bottom: 24px;
+}
+
+.ipo-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Status Pills (Open, Closed, Upcoming) */
+.ipo-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ipo-pill-btn {
+  padding: 7px 18px;
+  border-radius: 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  box-shadow: var(--clay-raised-sm), var(--clay-edge);
+  transition: all 0.2s ease;
+}
+
+.ipo-pill-btn:hover {
+  color: var(--text);
+  border-color: rgba(224, 169, 78, 0.4);
+  transform: translateY(-1px);
+}
+
+.ipo-pill-active {
+  background: var(--surface-2) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 14px rgba(224, 169, 78, 0.2), var(--clay-edge) !important;
+}
+
+/* IPO Type Row (IPO type: All ⌄) */
+.ipo-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 13.5px;
+}
+
+.ipo-filter-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ipo-type-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.ipo-type-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dotted var(--text-muted);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.2s ease;
+}
+
+.ipo-type-btn:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.ipo-type-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 130px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--clay-raised), var(--clay-edge);
+  padding: 6px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: fadeIn 0.15s ease;
+}
+
+.ipo-type-menu[hidden] {
+  display: none !important;
+}
+
+.ipo-type-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ipo-type-opt:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.ipo-opt-active {
+  color: var(--accent) !important;
+  background: rgba(224, 169, 78, 0.1) !important;
+  font-weight: 700;
+}
+
+/* IPO Table Card */
+.ipo-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--clay-raised), var(--clay-edge);
+  overflow: hidden;
+}
+
+.ipo-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ipo-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ipo-table th {
+  padding: 16px 20px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.015);
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+
+.ipo-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.ipo-table-row {
+  transition: background 0.15s ease;
+}
+
+.ipo-table-row:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.ipo-table-row:last-child td {
+  border-bottom: none;
+}
+
+/* Cell Elements */
+.ipo-company-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ipo-logo-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--clay-raised-sm), var(--clay-edge);
+  flex-shrink: 0;
+}
+
+.ipo-company-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ipo-sme-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #58a6ff;
+  letter-spacing: 0.04em;
+}
+
+.ipo-company-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ipo-date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ipo-date-text {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.ipo-last-day-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #b06000;
+  background: rgba(255, 179, 0, 0.18);
+  border: 1px solid rgba(255, 179, 0, 0.35);
+  border-radius: 4px;
+  padding: 1px 6px;
+  width: fit-content;
+}
+
+.ipo-subs-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ipo-subs-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ipo-gain-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #48b79a;
+  background: rgba(72, 183, 154, 0.12);
+  border: 1px solid rgba(72, 183, 154, 0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* Action Buttons (Apply / Pre-apply) */
+.ipo-action-btn {
+  padding: 9px 24px;
+  border-radius: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.ipo-btn-apply {
+  background: rgba(72, 183, 154, 0.15);
+  color: #48b79a;
+  border-color: rgba(72, 183, 154, 0.35);
+}
+
+.ipo-btn-apply:hover {
+  background: #48b79a;
+  color: #101c18;
+  box-shadow: 0 4px 14px rgba(72, 183, 154, 0.35);
+  transform: translateY(-1px);
+}
+
+.ipo-btn-preapply {
+  background: rgba(72, 183, 154, 0.08);
+  color: #48b79a;
+  border-color: rgba(72, 183, 154, 0.2);
+}
+
+.ipo-btn-preapply:hover {
+  background: rgba(72, 183, 154, 0.2);
+  border-color: #48b79a;
+  transform: translateY(-1px);
+}
+
+.ipo-empty-row {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+/* ── IPO Apply Modal ── */
+.ipo-modal-card {
+  max-width: 480px;
+  width: 92%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 24px rgba(224, 169, 78, 0.15);
+}
+
+.ipo-modal-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(224, 169, 78, 0.12);
+  border: 1px solid rgba(224, 169, 78, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.ipo-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.ipo-spec-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ipo-spec-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.ipo-spec-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ipo-apply-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ipo-bid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ipo-cutoff-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.ipo-total-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: rgba(224, 169, 78, 0.08);
+  border: 1px solid rgba(224, 169, 78, 0.25);
+  border-radius: 10px;
+}
+
+.ipo-total-block span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ipo-total-block strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.ipo-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(72, 183, 154, 0.3), rgba(72, 183, 154, 0.15));
+  border: 1px solid #48b79a;
+  border-radius: 10px;
+  color: #48b79a;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ipo-submit-btn:hover {
+  background: #48b79a;
+  color: #101c18;
+  box-shadow: 0 4px 14px rgba(72, 183, 154, 0.35);
+  transform: translateY(-1px);
+}
+
 
 

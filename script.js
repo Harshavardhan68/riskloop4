@@ -722,6 +722,7 @@ const PAGES = {
   home: 'home',
   market: 'market',
   forex: 'market',
+  ipo: 'ipo',
   'calculator-stock': 'calculator-stock',
   'calculator-fo': 'calculator-fo',
   'calculator-forex': 'calculator-forex',
@@ -741,6 +742,7 @@ function showPage(pageName) {
   // Get all page elements
   const homePage = document.getElementById('homePage');
   const marketPage = document.getElementById('marketPage');
+  const ipoPage = document.getElementById('ipoPage');
   const calculatorPage = document.getElementById('calculatorPage');
   const strategiesPage = document.getElementById('strategiesPage');
   const portfolioPage = document.getElementById('portfolioPage');
@@ -754,14 +756,15 @@ function showPage(pageName) {
   const cryptoCalculator = document.getElementById('cryptoCalculator');
 
   // Hide all pages
-  homePage.hidden = true;
-  marketPage.hidden = true;
-  calculatorPage.hidden = true;
-  strategiesPage.hidden = true;
-  portfolioPage.hidden = true;
-  journalPage.hidden = true;
-  aboutPage.hidden = true;
-  calculatorDisclaimer.hidden = true;
+  if (homePage) homePage.hidden = true;
+  if (marketPage) marketPage.hidden = true;
+  if (ipoPage) ipoPage.hidden = true;
+  if (calculatorPage) calculatorPage.hidden = true;
+  if (strategiesPage) strategiesPage.hidden = true;
+  if (portfolioPage) portfolioPage.hidden = true;
+  if (journalPage) journalPage.hidden = true;
+  if (aboutPage) aboutPage.hidden = true;
+  if (calculatorDisclaimer) calculatorDisclaimer.hidden = true;
 
   // Hide all calculator sub-views
   if (stockCalculator)  stockCalculator.hidden  = true;
@@ -772,45 +775,51 @@ function showPage(pageName) {
   // Show requested page
   switch(pageName) {
     case 'home':
-      homePage.hidden = false;
+      if (homePage) homePage.hidden = false;
       break;
     case 'market':
-      marketPage.hidden = false;
+      if (marketPage) marketPage.hidden = false;
+      break;
+    case 'ipo':
+      if (ipoPage) ipoPage.hidden = false;
+      if (typeof window.initIpoDashboard === 'function') {
+        setTimeout(window.initIpoDashboard, 20);
+      }
       break;
     case 'calculator-stock':
-      calculatorPage.hidden = false;
-      calculatorDisclaimer.hidden = false;
-      stockCalculator.hidden = false;
+      if (calculatorPage) calculatorPage.hidden = false;
+      if (calculatorDisclaimer) calculatorDisclaimer.hidden = false;
+      if (stockCalculator) stockCalculator.hidden = false;
       break;
     case 'calculator-fo':
-      calculatorPage.hidden = false;
-      calculatorDisclaimer.hidden = false;
-      foCalculator.hidden = false;
+      if (calculatorPage) calculatorPage.hidden = false;
+      if (calculatorDisclaimer) calculatorDisclaimer.hidden = false;
+      if (foCalculator) foCalculator.hidden = false;
       break;
     case 'calculator-forex':
-      calculatorPage.hidden = false;
-      calculatorDisclaimer.hidden = false;
+      if (calculatorPage) calculatorPage.hidden = false;
+      if (calculatorDisclaimer) calculatorDisclaimer.hidden = false;
       if (forexCalculator) forexCalculator.hidden = false;
       break;
     case 'calculator-crypto':
-      calculatorPage.hidden = false;
-      calculatorDisclaimer.hidden = false;
+      if (calculatorPage) calculatorPage.hidden = false;
+      if (calculatorDisclaimer) calculatorDisclaimer.hidden = false;
       if (cryptoCalculator) cryptoCalculator.hidden = false;
       break;
     case 'strategies':
-      strategiesPage.hidden = false;
+      if (strategiesPage) strategiesPage.hidden = false;
       if (typeof window.initStrategiesPage === 'function') {
         setTimeout(window.initStrategiesPage, 30);
       }
       break;
     case 'portfolio':
-      portfolioPage.hidden = false;
+      if (portfolioPage) portfolioPage.hidden = false;
       if (typeof window.initPortfolioPage === 'function') {
         setTimeout(window.initPortfolioPage, 30);
       }
       break;
     case 'journal':
-      journalPage.hidden = false;
+      if (journalPage) journalPage.hidden = false;
       const journalCalendar = document.getElementById('journalCalendar');
       if (journalCalendar) journalCalendar.hidden = false;
       const journalTradeForm = document.getElementById('journalTradeForm');
@@ -820,12 +829,12 @@ function showPage(pageName) {
       }
       break;
     case 'about':
-      aboutPage.hidden = false;
+      if (aboutPage) aboutPage.hidden = false;
       break;
     default:
-      calculatorPage.hidden = false;
-      calculatorDisclaimer.hidden = false;
-      stockCalculator.hidden = false;
+      if (calculatorPage) calculatorPage.hidden = false;
+      if (calculatorDisclaimer) calculatorDisclaimer.hidden = false;
+      if (stockCalculator) stockCalculator.hidden = false;
   }
 
   // Update active nav tab
@@ -2751,19 +2760,45 @@ Rules:
   window.renderJournalCalendar = renderCalendar;
 
   /* ----------------------------------------------------------
-     Download Journal CSV helper
+     Download Journal CSV helper with Range Filtering (All, Last Month, 6 Month, Custom)
   ---------------------------------------------------------- */
-  function downloadJournalCSV() {
+  function downloadJournalCSV(rangeType = 'all', customStart = null, customEnd = null) {
     const rows = [
       ['Date', 'Time', 'Symbol', 'Type', 'Setup', 'Entry Price', 'Stop Loss', 'Take Profit', 'Exit Price', 'Quantity', 'Outcome', 'Risk:Reward', 'P&L (INR)', 'Notes']
     ];
 
+    const now = new Date();
+    let startDateObj = null;
+    let endDateObj = null;
+    let fileNameSuffix = 'All_Trades';
+
+    if (rangeType === 'last_month') {
+      startDateObj = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      endDateObj = now;
+      fileNameSuffix = 'Last_30_Days';
+    } else if (rangeType === '6_month') {
+      startDateObj = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+      endDateObj = now;
+      fileNameSuffix = 'Last_6_Months';
+    } else if (rangeType === 'custom') {
+      if (customStart) startDateObj = new Date(customStart);
+      if (customEnd) endDateObj = new Date(customEnd + 'T23:59:59');
+      fileNameSuffix = `${customStart || 'Start'}_to_${customEnd || 'End'}`;
+    }
+
     const allDates = Object.keys(DETAILED_TRADES).sort().reverse();
-    allDates.forEach(date => {
-      const trades = DETAILED_TRADES[date] || [];
+    let count = 0;
+
+    allDates.forEach(dateStr => {
+      const tradeDate = new Date(dateStr);
+      if (startDateObj && tradeDate < new Date(startDateObj.toISOString().split('T')[0])) return;
+      if (endDateObj && tradeDate > endDateObj) return;
+
+      const trades = DETAILED_TRADES[dateStr] || [];
       trades.forEach(t => {
+        count++;
         rows.push([
-          date,
+          dateStr,
           t.time || '',
           t.symbol || '',
           t.type || '',
@@ -2781,11 +2816,16 @@ Rules:
       });
     });
 
+    if (count === 0 && rows.length === 1) {
+      alert(`No trades found for the selected range (${fileNameSuffix.replace(/_/g, ' ')}).`);
+      return;
+    }
+
     const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `RiskLoop_Trading_Journal_${MONTH_NAMES[calState.month]}_${calState.year}.csv`);
+    link.setAttribute('download', `RiskLoop_Journal_${fileNameSuffix}_${now.toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -2957,12 +2997,115 @@ Rules:
       });
     });
 
-    // Download Journal buttons
+    // ── Download Journal Popover & Tab Section ──
+    const dlWrap = dom('jcalDownloadWrap');
     const dlBtn = dom('jcalDownloadJournalBtn');
-    if (dlBtn) dlBtn.addEventListener('click', downloadJournalCSV);
+    const dlPopover = dom('jcalDownloadPopover');
+    const dlCloseBtn = dom('jcalDlCloseBtn');
+    const dlTabs = document.querySelectorAll('.jcal-dl-tab');
+    const dlInfoView = dom('jcalDlInfoView');
+    const dlCustomView = dom('jcalDlCustomView');
+    const dlRangeDesc = dom('jcalDlRangeDesc');
+    const dlExecuteBtn = dom('jcalDlExecuteBtn');
+    const dlCustomExecuteBtn = dom('jcalDlCustomExecuteBtn');
+    const dlStartDate = dom('jcalDlStartDate');
+    const dlEndDate = dom('jcalDlEndDate');
+
+    let _selectedDlRange = 'all';
+
+    const rangeDescriptions = {
+      all: 'Export all-time recorded trade history to CSV.',
+      last_month: 'Export trades logged within the last 30 days.',
+      '6_month': 'Export trades logged within the past 6 months.',
+      custom: 'Specify custom start and end dates to filter your journal export.'
+    };
+
+    function setDlTab(rangeKey) {
+      _selectedDlRange = rangeKey;
+      dlTabs.forEach(t => t.classList.toggle('jcal-dl-tab-active', t.getAttribute('data-range') === rangeKey));
+
+      if (rangeKey === 'custom') {
+        if (dlInfoView) dlInfoView.hidden = true;
+        if (dlCustomView) dlCustomView.hidden = false;
+
+        // Default custom dates
+        if (dlStartDate && !dlStartDate.value) {
+          const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+          dlStartDate.value = firstDay.toISOString().split('T')[0];
+        }
+        if (dlEndDate && !dlEndDate.value) {
+          dlEndDate.value = today.toISOString().split('T')[0];
+        }
+      } else {
+        if (dlCustomView) dlCustomView.hidden = true;
+        if (dlInfoView) dlInfoView.hidden = false;
+        if (dlRangeDesc) dlRangeDesc.textContent = rangeDescriptions[rangeKey] || rangeDescriptions.all;
+      }
+    }
+
+    if (dlBtn && dlPopover) {
+      dlBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !dlPopover.hidden;
+        dlPopover.hidden = isOpen;
+        dlWrap?.classList.toggle('dropdown-active', !isOpen);
+      });
+    }
+
+    if (dlCloseBtn && dlPopover) {
+      dlCloseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dlPopover.hidden = true;
+        dlWrap?.classList.remove('dropdown-active');
+      });
+    }
+
+    dlTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const range = tab.getAttribute('data-range') || 'all';
+        setDlTab(range);
+      });
+    });
+
+    if (dlExecuteBtn) {
+      dlExecuteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        downloadJournalCSV(_selectedDlRange);
+        if (dlPopover) dlPopover.hidden = true;
+        dlWrap?.classList.remove('dropdown-active');
+      });
+    }
+
+    if (dlCustomExecuteBtn) {
+      dlCustomExecuteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const startVal = dlStartDate?.value;
+        const endVal = dlEndDate?.value;
+        if (!startVal || !endVal) {
+          alert('Please select both Start Date and End Date.');
+          return;
+        }
+        if (new Date(startVal) > new Date(endVal)) {
+          alert('Start Date cannot be after End Date.');
+          return;
+        }
+        downloadJournalCSV('custom', startVal, endVal);
+        if (dlPopover) dlPopover.hidden = true;
+        dlWrap?.classList.remove('dropdown-active');
+      });
+    }
+
+    // Close download popover on outside click
+    document.addEventListener('click', (e) => {
+      if (dlPopover && !dlPopover.hidden && dlWrap && !dlWrap.contains(e.target)) {
+        dlPopover.hidden = true;
+        dlWrap.classList.remove('dropdown-active');
+      }
+    });
 
     const modalDlBtn = dom('jcalModalDownloadBtn');
-    if (modalDlBtn) modalDlBtn.addEventListener('click', downloadJournalCSV);
+    if (modalDlBtn) modalDlBtn.addEventListener('click', () => downloadJournalCSV('all'));
 
     // Back button in calendar header
     const backBtn = dom('jcalBackBtn');
@@ -6916,4 +7059,172 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.style.overflow = '';
     }
   });
+
+  // ============================================================
+  // SUPPORT WIDGET & MODAL LOGIC
+  // ============================================================
+  const floatingSupportBtn = document.getElementById('floatingSupportBtn');
+  const headerSupportBtn = document.getElementById('headerSupportBtn');
+  const supportModalBackdrop = document.getElementById('supportModalBackdrop');
+  const supportModalCloseBtn = document.getElementById('supportModalCloseBtn');
+  const supportSubmitBtn = document.getElementById('supportSubmitBtn');
+  const supportFeedbackToast = document.getElementById('supportFeedbackToast');
+
+  function openSupportModal() {
+    if (!supportModalBackdrop) return;
+    supportModalBackdrop.hidden = false;
+    document.body.style.overflow = 'hidden';
+    if (supportFeedbackToast) supportFeedbackToast.hidden = true;
+    const nameInp = document.getElementById('supportNameInput');
+    if (nameInp) setTimeout(() => nameInp.focus(), 50);
+  }
+
+  function closeSupportModal() {
+    if (!supportModalBackdrop) return;
+    supportModalBackdrop.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  if (floatingSupportBtn) floatingSupportBtn.addEventListener('click', openSupportModal);
+  if (headerSupportBtn) headerSupportBtn.addEventListener('click', openSupportModal);
+  if (supportModalCloseBtn) supportModalCloseBtn.addEventListener('click', closeSupportModal);
+
+  if (supportModalBackdrop) {
+    supportModalBackdrop.addEventListener('click', function(e) {
+      if (e.target === supportModalBackdrop) {
+        closeSupportModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && supportModalBackdrop && !supportModalBackdrop.hidden) {
+      closeSupportModal();
+    }
+  });
+
+  if (supportSubmitBtn) {
+    supportSubmitBtn.addEventListener('click', function() {
+      const name = document.getElementById('supportNameInput')?.value.trim();
+      const email = document.getElementById('supportEmailInput')?.value.trim();
+      const message = document.getElementById('supportMessageInput')?.value.trim();
+
+      if (!name || !email || !message) {
+        alert('Please fill in all required fields (Name, Email, and Message).');
+        return;
+      }
+
+      if (supportFeedbackToast) {
+        supportFeedbackToast.hidden = false;
+      }
+
+      // Reset form fields
+      const msgInput = document.getElementById('supportMessageInput');
+      if (msgInput) msgInput.value = '';
+
+      setTimeout(() => {
+        closeSupportModal();
+      }, 2500);
+    });
+  }
+
+  window.openSupportModal = openSupportModal;
+  window.closeSupportModal = closeSupportModal;
+
+  // ============================================================
+  // AUTH (LOGIN / SIGN IN) MODAL LOGIC
+  // ============================================================
+  const headerLoginBtn = document.getElementById('headerLoginBtn');
+  const headerSignInBtn = document.getElementById('headerSignInBtn');
+  const authModalBackdrop = document.getElementById('authModalBackdrop');
+  const authModalCloseBtn = document.getElementById('authModalCloseBtn');
+  const authTabLoginBtn = document.getElementById('authTabLoginBtn');
+  const authTabRegisterBtn = document.getElementById('authTabRegisterBtn');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const authSubmitText = document.getElementById('authSubmitText');
+  const authModalSub = document.getElementById('authModalSub');
+  const authToastMsg = document.getElementById('authToastMsg');
+
+  let currentAuthMode = 'login'; // 'login' | 'register'
+
+  function setAuthMode(mode) {
+    currentAuthMode = mode;
+    if (authToastMsg) authToastMsg.hidden = true;
+
+    if (mode === 'login') {
+      if (authTabLoginBtn) authTabLoginBtn.classList.add('auth-tab-active');
+      if (authTabRegisterBtn) authTabRegisterBtn.classList.remove('auth-tab-active');
+      if (authSubmitText) authSubmitText.textContent = 'Log In to RiskLoop';
+      if (authModalSub) authModalSub.textContent = 'Log in to your RiskLoop terminal';
+    } else {
+      if (authTabRegisterBtn) authTabRegisterBtn.classList.add('auth-tab-active');
+      if (authTabLoginBtn) authTabLoginBtn.classList.remove('auth-tab-active');
+      if (authSubmitText) authSubmitText.textContent = 'Create RiskLoop Account';
+      if (authModalSub) authModalSub.textContent = 'Sign up for institutional risk management';
+    }
+  }
+
+  function openAuthModal(mode = 'login') {
+    if (!authModalBackdrop) return;
+    setAuthMode(mode);
+    authModalBackdrop.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const emailInp = document.getElementById('authEmailInput');
+    if (emailInp) setTimeout(() => emailInp.focus(), 50);
+  }
+
+  function closeAuthModal() {
+    if (!authModalBackdrop) return;
+    authModalBackdrop.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  if (headerLoginBtn) headerLoginBtn.addEventListener('click', () => openAuthModal('login'));
+  if (headerSignInBtn) headerSignInBtn.addEventListener('click', () => openAuthModal('register'));
+  if (authTabLoginBtn) authTabLoginBtn.addEventListener('click', () => setAuthMode('login'));
+  if (authTabRegisterBtn) authTabRegisterBtn.addEventListener('click', () => setAuthMode('register'));
+  if (authModalCloseBtn) authModalCloseBtn.addEventListener('click', closeAuthModal);
+
+  if (authModalBackdrop) {
+    authModalBackdrop.addEventListener('click', function(e) {
+      if (e.target === authModalBackdrop) {
+        closeAuthModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && authModalBackdrop && !authModalBackdrop.hidden) {
+      closeAuthModal();
+    }
+  });
+
+  if (authSubmitBtn) {
+    authSubmitBtn.addEventListener('click', function() {
+      const email = document.getElementById('authEmailInput')?.value.trim();
+      const pass = document.getElementById('authPasswordInput')?.value.trim();
+
+      if (!email || !pass) {
+        alert('Please provide your email/username and password.');
+        return;
+      }
+
+      if (authToastMsg) {
+        const toastText = document.getElementById('authToastText');
+        if (toastText) {
+          toastText.textContent = (currentAuthMode === 'login')
+            ? 'Authentication successful! Welcome back.'
+            : 'Account registered successfully! Welcome to RiskLoop.';
+        }
+        authToastMsg.hidden = false;
+      }
+
+      setTimeout(() => {
+        closeAuthModal();
+      }, 2000);
+    });
+  }
+
+  window.openAuthModal = openAuthModal;
+  window.closeAuthModal = closeAuthModal;
 });
