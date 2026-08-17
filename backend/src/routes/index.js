@@ -14,6 +14,8 @@ import tradesRoutes from './trades.js';
 import devRoutes from './dev.js';
 import websocketRoutes from './websocket.js';
 import commentsRoutes from './comments.js';
+import newsRoutes from './news.js';
+import economicCalendarRoutes from './economicCalendar.js';
 
 export {
   authRoutes,
@@ -27,4 +29,7 @@ export {
   devRoutes,
   websocketRoutes,
   commentsRoutes,
+  newsRoutes,
+  economicCalendarRoutes,
 };
+

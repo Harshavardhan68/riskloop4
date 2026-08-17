@@ -20,6 +20,8 @@ import {
   devRoutes,
   websocketRoutes,
   commentsRoutes,
+  newsRoutes,
+  economicCalendarRoutes,
 } from './routes/index.js';
 import { db }                    from './services/DatabaseService.js';
 import { tradeExecutionService } from './services/TradeExecutionService.js';
@@ -75,7 +77,7 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'];
+  : ['http://localhost:3000', 'http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:8080', 'http://127.0.0.1:8080'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -134,7 +136,9 @@ app.use('/api/holdings', holdingsRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/trades', tradesRoutes);
 app.use('/api/websocket', websocketRoutes);
+app.use('/api/market/news', newsRoutes);
 app.use('/api/market', commentsRoutes);
+app.use('/api/economic-calendar', economicCalendarRoutes);
 
 // Development routes (disabled in production)
 app.use('/api/dev', devRoutes);

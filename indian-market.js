@@ -65,104 +65,7 @@
     { symbol: 'RELIANCE', name: 'Reliance Industries', date: 'Aug 20, 2026', tentative: true },
   ];
 
-  const MOCK_ECONOMIC_EVENTS = {
-    today: [
-      { 
-        date: 'Aug 14', 
-        time: '10:00 AM', 
-        event: 'RBI Monetary Policy Meeting', 
-        country: 'IN', 
-        impact: 'high', 
-        previous: '6.50%', 
-        forecast: '6.50%', 
-        actual: '—' 
-      },
-      { 
-        date: 'Aug 14', 
-        time: '5:30 PM', 
-        event: 'Industrial Production (YoY)', 
-        country: 'IN', 
-        impact: 'medium', 
-        previous: '5.8%', 
-        forecast: '6.2%', 
-        actual: '—' 
-      },
-    ],
-    tomorrow: [
-      { 
-        date: 'Aug 15', 
-        time: '11:00 AM', 
-        event: 'WPI Data Release', 
-        country: 'IN', 
-        impact: 'medium', 
-        previous: '3.36%', 
-        forecast: '3.50%', 
-        actual: '—' 
-      },
-      { 
-        date: 'Aug 15', 
-        time: '2:30 PM', 
-        event: 'Manufacturing PMI', 
-        country: 'IN', 
-        impact: 'low', 
-        previous: '57.5', 
-        forecast: '58.0', 
-        actual: '—' 
-      },
-    ],
-    week: [
-      { 
-        date: 'Aug 14', 
-        time: '10:00 AM', 
-        event: 'RBI Monetary Policy Meeting', 
-        country: 'IN', 
-        impact: 'high', 
-        previous: '6.50%', 
-        forecast: '6.50%', 
-        actual: '—' 
-      },
-      { 
-        date: 'Aug 15', 
-        time: '11:00 AM', 
-        event: 'WPI Data Release', 
-        country: 'IN', 
-        impact: 'medium', 
-        previous: '3.36%', 
-        forecast: '3.50%', 
-        actual: '—' 
-      },
-      { 
-        date: 'Aug 16', 
-        time: '5:30 PM', 
-        event: 'CPI Data Release', 
-        country: 'IN', 
-        impact: 'high', 
-        previous: '4.75%', 
-        forecast: '4.90%', 
-        actual: '—' 
-      },
-      { 
-        date: 'Aug 18', 
-        time: '9:00 AM', 
-        event: 'Current Account Balance', 
-        country: 'IN', 
-        impact: 'medium', 
-        previous: '-8.2B', 
-        forecast: '-7.8B', 
-        actual: '—' 
-      },
-      { 
-        date: 'Aug 20', 
-        time: '3:30 PM', 
-        event: 'Services PMI', 
-        country: 'IN', 
-        impact: 'low', 
-        previous: '60.4', 
-        forecast: '60.8', 
-        actual: '—' 
-      },
-    ]
-  };
+  // Economic calendar data is dynamically loaded from backend GET /api/economic-calendar?country=IN
 
   const TRADING_SESSIONS = [
     { name: 'Pre-Open', start: '9:00', end: '9:15', status: 'pre', type: 'equity' },
@@ -211,16 +114,96 @@
   }
 
   /* ============================================================
-     ECONOMIC CALENDAR (INDIA)
+     ECONOMIC CALENDAR (INDIA) — LIVE BACKEND INTEGRATION
      ============================================================ */
 
   let currentCalendarPeriod = 'today';
+  let liveIndiaCalendarEvents = [];
+  let isCalendarLoading = false;
+
+  async function fetchLiveIndiaCalendar() {
+    const backendBase = (typeof window !== 'undefined' && window.API_BASE_URL) || 'http://localhost:3000';
+    try {
+      const response = await fetch(`${backendBase}/api/economic-calendar?country=IN`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data.events)) {
+          // Sort events chronologically (ascending)
+          return data.events.sort((a, b) => new Date(a.eventTime).getTime() - new Date(b.eventTime).getTime());
+        }
+      }
+    } catch (err) {
+      console.warn('[IndianMarket] Failed to fetch live economic calendar from backend:', err.message);
+    }
+    return [];
+  }
+
+  function formatISTDateTime(isoString) {
+    if (!isoString) return { date: '—', time: '—' };
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return { date: '—', time: '—' };
+
+    const dateStr = d.toLocaleDateString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      month: 'short',
+      day: 'numeric'
+    });
+
+    const timeStr = d.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    return { date: dateStr, time: timeStr };
+  }
+
+  function filterIndiaEventsByPeriod(events, period) {
+    if (!Array.isArray(events) || events.length === 0) return [];
+
+    const now = new Date();
+    const todayIST = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(now);
+    
+    const tomorrow = new Date(now.getTime() + 24 * 3600 * 1000);
+    const tomorrowIST = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(tomorrow);
+
+    const weekAhead = new Date(now.getTime() + 7 * 24 * 3600 * 1000);
+
+    if (period === 'today') {
+      const todayEvents = events.filter(e => {
+        const evDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(e.eventTime));
+        return evDate === todayIST;
+      });
+      return todayEvents.length > 0 ? todayEvents : events;
+    } else if (period === 'tomorrow') {
+      const tomorrowEvents = events.filter(e => {
+        const evDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(e.eventTime));
+        return evDate === tomorrowIST;
+      });
+      return tomorrowEvents.length > 0 ? tomorrowEvents : events.filter(e => new Date(e.eventTime).getTime() >= now.getTime());
+    } else if (period === 'week') {
+      const weekEvents = events.filter(e => {
+        const t = new Date(e.eventTime).getTime();
+        return t >= (now.getTime() - 24 * 3600 * 1000) && t <= weekAhead.getTime();
+      });
+      return weekEvents.length > 0 ? weekEvents : events;
+    }
+
+    return events;
+  }
 
   function initEconomicCalendar() {
     const todayTab = document.querySelector('[data-period="today"]');
     const tomorrowTab = document.querySelector('[data-period="tomorrow"]');
     const weekTab = document.querySelector('[data-period="week"]');
     const viewAllBtn = document.getElementById('viewAllCalendarBtn');
+    const prevBtn = document.getElementById('calendarPrevBtn');
+    const nextBtn = document.getElementById('calendarNextBtn');
+    const navDate = document.getElementById('calendarNavDate');
 
     if (!todayTab || !tomorrowTab || !weekTab) return;
 
@@ -229,33 +212,63 @@
       if (currentCalendarPeriod === 'today') return;
       setActiveCalendarTab(todayTab, [tomorrowTab, weekTab]);
       currentCalendarPeriod = 'today';
-      loadCalendarData('today');
+      if (navDate) navDate.textContent = 'Today';
+      renderCurrentCalendarView();
     });
 
     tomorrowTab.addEventListener('click', () => {
       if (currentCalendarPeriod === 'tomorrow') return;
       setActiveCalendarTab(tomorrowTab, [todayTab, weekTab]);
       currentCalendarPeriod = 'tomorrow';
-      loadCalendarData('tomorrow');
+      if (navDate) navDate.textContent = 'Tomorrow';
+      renderCurrentCalendarView();
     });
 
     weekTab.addEventListener('click', () => {
       if (currentCalendarPeriod === 'week') return;
       setActiveCalendarTab(weekTab, [todayTab, tomorrowTab]);
       currentCalendarPeriod = 'week';
-      loadCalendarData('week');
+      if (navDate) navDate.textContent = 'This Week';
+      renderCurrentCalendarView();
     });
 
     // View all button
     if (viewAllBtn) {
       viewAllBtn.addEventListener('click', () => {
-        console.log('View all calendar events clicked');
-        // TODO: Navigate to full economic calendar page
+        currentCalendarPeriod = 'all';
+        [todayTab, tomorrowTab, weekTab].forEach(t => t.classList.remove('calendar-tab-active'));
+        if (navDate) navDate.textContent = 'All India Events';
+        renderCurrentCalendarView();
       });
     }
 
-    // Initial load
-    loadCalendarData('today');
+    // Prev / Next button handlers
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (currentCalendarPeriod === 'tomorrow') {
+          todayTab.click();
+        } else if (currentCalendarPeriod === 'week') {
+          tomorrowTab.click();
+        } else {
+          viewAllBtn && viewAllBtn.click();
+        }
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (currentCalendarPeriod === 'today') {
+          tomorrowTab.click();
+        } else if (currentCalendarPeriod === 'tomorrow') {
+          weekTab.click();
+        } else {
+          todayTab.click();
+        }
+      });
+    }
+
+    // Initial load from backend
+    loadCalendarData();
   }
 
   function setActiveCalendarTab(activeTab, otherTabs) {
@@ -263,33 +276,49 @@
     otherTabs.forEach(tab => tab.classList.remove('calendar-tab-active'));
   }
 
-  function loadCalendarData(period) {
+  async function loadCalendarData() {
     const tbody = document.getElementById('calendarTableBody');
     if (!tbody) return;
+
+    if (isCalendarLoading) return;
+    isCalendarLoading = true;
 
     // Show loading state
     tbody.innerHTML = `
       <tr>
         <td colspan="8" class="calendar-loading">
           <div class="loading-spinner"></div>
-          <span>Loading ${period} events...</span>
+          <span>Loading live India economic events...</span>
         </td>
       </tr>
     `;
 
-    // Simulate API call
-    setTimeout(() => {
-      const events = MOCK_ECONOMIC_EVENTS[period] || [];
-      renderCalendarTable(tbody, events);
-    }, 400);
+    try {
+      liveIndiaCalendarEvents = await fetchLiveIndiaCalendar();
+    } catch (err) {
+      console.error('[IndianMarket] Error loading economic calendar:', err);
+    } finally {
+      isCalendarLoading = false;
+    }
+
+    renderCurrentCalendarView();
+  }
+
+  function renderCurrentCalendarView() {
+    const tbody = document.getElementById('calendarTableBody');
+    if (!tbody) return;
+
+    const filtered = filterIndiaEventsByPeriod(liveIndiaCalendarEvents, currentCalendarPeriod);
+    renderCalendarTable(tbody, filtered);
   }
 
   function renderCalendarTable(tbody, events) {
-    if (events.length === 0) {
+    if (!events || events.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="8" class="calendar-loading">
-            <span>No events scheduled</span>
+          <td colspan="8" class="calendar-loading" style="padding: 30px 20px;">
+            <div style="color: var(--text-muted); font-size: 13px;">No India economic events found</div>
+            <div style="margin-top: 6px; font-size: 11px; color: var(--text-secondary);">Waiting for MetaTrader 5 live calendar updates or scheduled releases</div>
           </td>
         </tr>
       `;
@@ -297,41 +326,49 @@
     }
 
     tbody.innerHTML = events.map(event => {
-      const impactClass = `impact-${event.impact}`;
-      const impactLabel = event.impact.charAt(0).toUpperCase() + event.impact.slice(1);
+      const impact = (event.impact || 'medium').toLowerCase();
+      let impactClass = 'impact-medium';
+      if (impact === 'high' || impact === '3') impactClass = 'impact-high';
+      else if (impact === 'low' || impact === '1') impactClass = 'impact-low';
+
+      const impactLabel = impact.charAt(0).toUpperCase() + impact.slice(1);
+      const { date, time } = formatISTDateTime(event.eventTime);
+      const currency = event.currency || 'INR';
+      const countryCode = event.countryCode || 'IN';
 
       return `
         <tr>
           <td class="cal-col-date">
             <div class="cal-date-badge">
-              <strong>${event.date}</strong>
+              <strong>${date}</strong>
             </div>
           </td>
           <td class="cal-col-time">
-            <span class="cal-time">${event.time}</span>
+            <span class="cal-time">${time}</span>
           </td>
           <td class="cal-col-event">
             <div class="cal-event-cell">
-              <div class="cal-event-title">${event.event}</div>
+              <div class="cal-event-title">${event.event || '—'}</div>
+              ${event.eventCode && event.eventCode !== event.event ? `<div style="font-size: 10px; color: var(--text-muted); font-family: monospace;">${event.eventCode}</div>` : ''}
             </div>
           </td>
           <td class="cal-col-country">
             <div class="cal-country">
               <span class="cal-country-flag">🇮🇳</span>
-              <span>${event.country}</span>
+              <span>${countryCode} (${currency})</span>
             </div>
           </td>
           <td class="cal-col-impact">
             <span class="impact-badge ${impactClass}">${impactLabel}</span>
           </td>
           <td class="cal-col-previous">
-            <div class="cal-value-cell">${event.previous}</div>
+            <div class="cal-value-cell">${event.previous || '—'}</div>
           </td>
           <td class="cal-col-forecast">
-            <div class="cal-value-cell">${event.forecast}</div>
+            <div class="cal-value-cell">${event.forecast || '—'}</div>
           </td>
           <td class="cal-col-actual">
-            <div class="cal-value-cell cal-actual">${event.actual}</div>
+            <div class="cal-value-cell cal-actual">${event.actual || '—'}</div>
           </td>
         </tr>
       `;
@@ -741,52 +778,138 @@
   }
 
   /* ============================================================
-     STOCKS IN NEWS TODAY
+     INDIAN MARKET & ECONOMIC NEWS (INSIDE ECONOMIC CALENDAR)
      ============================================================ */
 
-  function initStocksNews() {
-    const newsList = document.getElementById('stocksNewsList');
-    const viewAllBtn = document.getElementById('viewAllStocksNewsBtn');
+  function formatRelativeNewsTime(dateString) {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Recently';
+    const now = new Date();
+    const diffMinutes = Math.floor((now - date) / (1000 * 60));
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+  }
 
-    if (!newsList) return;
+  async function initIndiaCalendarNews() {
+    const container = document.getElementById('indiaCalendarNewsList');
+    if (!container) return;
 
-    // Show loading
-    newsList.innerHTML = `
-      <div class="stocks-news-loading">
+    container.innerHTML = `
+      <div class="stocks-news-loading" style="grid-column: 1 / -1;">
         <div class="loading-spinner"></div>
-        <span>Loading news...</span>
+        <span>Loading India economic & market headlines...</span>
       </div>
     `;
 
-    // Simulate API call
-    setTimeout(() => {
-      renderStocksNews(newsList, MOCK_STOCKS_NEWS);
-    }, 700);
+    const backendBase = (typeof window !== 'undefined' && window.API_BASE_URL) || 'http://localhost:3000';
+    let articles = [];
 
-    // View all button
-    if (viewAllBtn) {
-      viewAllBtn.addEventListener('click', () => {
-        console.log('View all stocks news clicked');
-        // TODO: Navigate to full news page
+    try {
+      const response = await fetch(`${backendBase}/api/market/news?category=india`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data.articles)) {
+          articles = data.articles;
+        }
+      }
+    } catch (err) {
+      console.warn('[IndiaCalendarNews] Backend unreachable, trying local fallback:', err.message);
     }
+
+    if (!articles || articles.length === 0) {
+      try {
+        const fallbackRes = await fetch('./data/market-news.json');
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          if (fallbackData && Array.isArray(fallbackData.articles)) {
+            articles = fallbackData.articles.map(a => ({
+              title: a.title,
+              description: a.excerpt || a.description || '',
+              source: a.source || 'Market Feed',
+              url: a.url || '',
+              image: null,
+              publishedAt: a.publishedAt || new Date().toISOString(),
+              category: 'india'
+            }));
+          }
+        }
+      } catch (e) {
+        console.warn('[IndiaCalendarNews] Local fallback failed:', e.message);
+      }
+    }
+
+    renderIndiaCalendarNews(container, articles);
   }
 
-  function renderStocksNews(container, news) {
-    container.innerHTML = news.map(item => {
-      const sentimentClass = `sentiment-${item.sentiment}`;
-      const sentimentLabel = item.sentiment.charAt(0).toUpperCase() + item.sentiment.slice(1);
+  function renderIndiaCalendarNews(container, articles) {
+    if (!container) return;
 
-      return `
-        <div class="stock-news-item">
-          <div class="stock-news-header">
-            <div class="stock-news-company">${item.company}</div>
-            <div class="sentiment-badge ${sentimentClass}">${sentimentLabel}</div>
-          </div>
-          <div class="stock-news-headline">${item.headline}</div>
+    if (!articles || articles.length === 0) {
+      container.innerHTML = `
+        <div class="stocks-news-empty" style="grid-column: 1 / -1;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>No Indian economic news articles found at this moment.</p>
         </div>
       `;
+      return;
+    }
+
+    // Display top 6 Indian market headlines
+    const visibleArticles = articles.slice(0, 6);
+
+    container.innerHTML = visibleArticles.map(item => {
+      const sourceName = item.source || 'India Markets';
+      const timeAgo = formatRelativeNewsTime(item.publishedAt);
+      const description = item.description ? item.description.trim() : '';
+      const imageMarkup = item.image 
+        ? `<div class="stock-news-thumb"><img src="${item.image}" alt="" loading="lazy" onerror="this.parentElement.style.display='none';" /></div>`
+        : '';
+
+      return `
+        <article class="stock-news-card" data-url="${item.url || '#'}">
+          ${imageMarkup}
+          <div class="stock-news-body">
+            <div class="stock-news-meta-row">
+              <span class="stock-news-tag">India</span>
+              <span class="stock-news-src">${sourceName}</span>
+              <span class="stock-news-dot">·</span>
+              <span class="stock-news-time">${timeAgo}</span>
+            </div>
+            <h4 class="stock-news-title">${item.title}</h4>
+            ${description ? `<p class="stock-news-desc">${description}</p>` : ''}
+            <div class="stock-news-footer">
+              <a href="${item.url || '#'}" target="_blank" rel="noopener noreferrer" class="stock-news-read-btn" onclick="event.stopPropagation();">
+                <span>Read Article</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
     }).join('');
+
+    container.querySelectorAll('.stock-news-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const url = card.getAttribute('data-url');
+        if (url && url !== '#') {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      });
+    });
+  }
+
+  function initStocksNews() {
+    initIndiaCalendarNews();
   }
 
   /* ============================================================

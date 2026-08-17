@@ -1252,7 +1252,162 @@
     }).join('');
   }
 
-  window.likeForexComment = toggleLikeForexComment;
+  /* ============================================================
+     FOREX & GLOBAL MARKET NEWS (INSIDE FOREX ECONOMIC CALENDAR)
+     ============================================================ */
+
+  let _currentForexNewsCategory = 'all';
+
+  function formatRelativeForexNewsTime(dateString) {
+    if (!dateString) return 'Just now';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Recently';
+    const now = new Date();
+    const diffMinutes = Math.floor((now - date) / (1000 * 60));
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  async function loadForexCalendarNews(category = 'all') {
+    const container = document.getElementById('forexCalendarNewsList');
+    if (!container) return;
+
+    _currentForexNewsCategory = category;
+
+    container.innerHTML = `
+      <div class="stocks-news-loading" style="grid-column: 1 / -1;">
+        <div class="loading-spinner"></div>
+        <span>Loading ${category.replace('-', ' ')} news & macroeconomic headlines...</span>
+      </div>
+    `;
+
+    const backendBase = (typeof window !== 'undefined' && window.API_BASE_URL) || 'http://localhost:3000';
+    let articles = [];
+
+    try {
+      const response = await fetch(`${backendBase}/api/market/news?category=${encodeURIComponent(category)}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data.articles)) {
+          articles = data.articles;
+        }
+      }
+    } catch (err) {
+      console.warn('[ForexCalendarNews] Backend unreachable, trying local fallback:', err.message);
+    }
+
+    if (!articles || articles.length === 0) {
+      try {
+        const fallbackRes = await fetch('./data/market-news.json');
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          if (fallbackData && Array.isArray(fallbackData.articles)) {
+            articles = fallbackData.articles.map(a => ({
+              title: a.title,
+              description: a.excerpt || a.description || '',
+              source: a.source || 'Global Feed',
+              url: a.url || '',
+              image: null,
+              publishedAt: a.publishedAt || new Date().toISOString(),
+              category: category
+            }));
+          }
+        }
+      } catch (e) {
+        console.warn('[ForexCalendarNews] Local fallback failed:', e.message);
+      }
+    }
+
+    renderForexCalendarNews(container, articles, category);
+  }
+
+  function renderForexCalendarNews(container, articles, category) {
+    if (!container) return;
+
+    if (!articles || articles.length === 0) {
+      container.innerHTML = `
+        <div class="stocks-news-empty" style="grid-column: 1 / -1;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>No news articles found for this category at this moment.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Display top 6 global articles in the calendar grid
+    const visibleArticles = articles.slice(0, 6);
+
+    container.innerHTML = visibleArticles.map(item => {
+      const sourceName = item.source || 'Global Markets';
+      const timeAgo = formatRelativeForexNewsTime(item.publishedAt);
+      const description = item.description ? item.description.trim() : '';
+      const imageMarkup = item.image 
+        ? `<div class="stock-news-thumb"><img src="${item.image}" alt="" loading="lazy" onerror="this.parentElement.style.display='none';" /></div>`
+        : '';
+
+      const categoryLabel = {
+        'all': 'Global',
+        'forex': 'Forex',
+        'gold': 'Gold',
+        'crypto': 'Crypto',
+        'us-markets': 'US Markets'
+      }[item.category || category] || 'Global';
+
+      return `
+        <article class="stock-news-card" data-url="${item.url || '#'}">
+          ${imageMarkup}
+          <div class="stock-news-body">
+            <div class="stock-news-meta-row">
+              <span class="stock-news-tag">${categoryLabel}</span>
+              <span class="stock-news-src">${sourceName}</span>
+              <span class="stock-news-dot">·</span>
+              <span class="stock-news-time">${timeAgo}</span>
+            </div>
+            <h4 class="stock-news-title">${item.title}</h4>
+            ${description ? `<p class="stock-news-desc">${description}</p>` : ''}
+            <div class="stock-news-footer">
+              <a href="${item.url || '#'}" target="_blank" rel="noopener noreferrer" class="stock-news-read-btn" onclick="event.stopPropagation();">
+                <span>Read Article</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.stock-news-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const url = card.getAttribute('data-url');
+        if (url && url !== '#') {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      });
+    });
+  }
+
+  function initForexCalendarNews() {
+    const pills = document.querySelectorAll('#forexNewsCategoryPills .news-cat-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('news-cat-active'));
+        pill.classList.add('news-cat-active');
+        const cat = pill.getAttribute('data-category') || 'all';
+        loadForexCalendarNews(cat);
+      });
+    });
+
+    loadForexCalendarNews('all');
+  }
 
   /* ============================================================
      INIT & EXPORT
@@ -1264,6 +1419,7 @@
 
     console.log('Initializing Forex Market sections...');
     initForexEconomicCalendar();
+    initForexCalendarNews();
     initForexTradingSessions();
     renderForexMajors();
     initForexCorrelation();

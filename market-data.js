@@ -93,9 +93,26 @@ async function fetchLotSizes() {
 }
 
 /**
- * Fetch market news
+ * Fetch market news from backend service with fallback to local JSON
+ * @param {string} [category='all']
  */
-async function fetchMarketNews() {
+async function fetchMarketNews(category = 'all') {
+  const backendBase = (typeof window !== 'undefined' && window.API_BASE_URL) || 'http://localhost:3000';
+  try {
+    const response = await fetch(`${backendBase}/api/market/news?category=${encodeURIComponent(category)}`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Array.isArray(data.articles) && data.articles.length > 0) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.info('Backend news API unavailable, falling back to local market-news.json:', err.message);
+  }
+
   return await fetchMarketData('market-news.json');
 }
 
@@ -327,7 +344,13 @@ function renderNews(articles) {
   
   newsList.innerHTML = articles.map(article => {
     const categoryClass = {
+      'all': 'market-news',
       'market': 'market-news',
+      'india': 'market-news',
+      'forex': 'rbi-news',
+      'gold': 'earnings-news',
+      'crypto': 'ipo-news',
+      'us-markets': 'sebi-news',
       'rbi': 'rbi-news',
       'sebi': 'sebi-news',
       'earnings': 'earnings-news',
@@ -335,20 +358,28 @@ function renderNews(articles) {
     }[article.category] || 'market-news';
     
     const categoryLabel = {
+      'all': 'Market',
       'market': 'Market',
+      'india': 'India',
+      'forex': 'Forex',
+      'gold': 'Commodities',
+      'crypto': 'Crypto',
+      'us-markets': 'US Markets',
       'rbi': 'RBI',
       'sebi': 'SEBI',
       'earnings': 'Earnings',
       'ipo': 'IPO'
     }[article.category] || 'Market';
+
+    const excerptText = article.excerpt || article.description || '';
     
     return `
-      <article class="news-card" data-url="${article.url}">
+      <article class="news-card" data-url="${article.url || '#'}">
         <div class="news-category ${categoryClass}">${categoryLabel}</div>
-        <h3 class="news-title">${article.title}</h3>
-        <p class="news-excerpt">${article.excerpt}</p>
+        <h3 class="news-title">${article.title || 'Untitled'}</h3>
+        <p class="news-excerpt">${excerptText}</p>
         <div class="news-meta">
-          <span class="news-source">${article.source}</span>
+          <span class="news-source">${article.source || 'Market Feed'}</span>
           <span class="news-time">${getRelativeTime(article.publishedAt)}</span>
         </div>
       </article>
