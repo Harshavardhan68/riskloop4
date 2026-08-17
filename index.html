@@ -1034,6 +1034,219 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         BONDS SCREENER PAGE
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="page-container" id="bondsPage" hidden>
+      <div class="bonds-container">
+        <div class="ipo-header">
+          <div class="ipo-header-left">
+            <a href="#market" class="ipo-back-btn" title="Back to Market">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+              <span>Back to Market</span>
+            </a>
+            <h1 class="ipo-title">Bonds Screener</h1>
+          </div>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="bonds-pills-row">
+          <button class="bonds-filter-icon-btn" id="bondsFilterToggle" type="button" aria-label="Filters">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>
+          </button>
+          <button class="bonds-pill-btn" data-filter="high-rated" type="button">High rated</button>
+          <button class="bonds-pill-btn" data-filter="under-10k" type="button">Under ₹10,000</button>
+          <button class="bonds-pill-btn" data-filter="tenure-1yr" type="button">Tenure &lt; 1 year</button>
+          <button class="bonds-pill-btn" data-filter="monthly" type="button">Monthly interest</button>
+          <button class="bonds-clear-btn" id="bondsClearFilters" type="button">Clear all</button>
+        </div>
+
+        <!-- Bonds Table Card -->
+        <div class="ipo-card">
+          <div class="ipo-table-responsive">
+            <table class="ipo-table bonds-table">
+              <thead>
+                <tr>
+                  <th class="bonds-th-company">Company</th>
+                  <th class="bonds-th-ytm">YTM ⬍</th>
+                  <th class="bonds-th-tenure">Tenure left ⬍</th>
+                  <th class="bonds-th-min">Min. investment ⬍</th>
+                  <th class="bonds-th-payout">Payout</th>
+                  <th class="bonds-th-rating">Rating ⬍</th>
+                </tr>
+              </thead>
+              <tbody id="bondsTableBody">
+                <!-- Rendered dynamically by market-products.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STOCK EVENTS / DIVIDEND PAGE
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="page-container" id="dividendPage" hidden>
+      <div class="events-page-container">
+        <div class="ipo-header">
+          <div class="ipo-header-left">
+            <a href="#market" class="ipo-back-btn" title="Back to Market">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+              <span>Back to Market</span>
+            </a>
+            <h1 class="ipo-title">Stock Events</h1>
+          </div>
+        </div>
+
+        <div class="events-layout-grid">
+          <!-- Left Sidebar Controls -->
+          <aside class="events-sidebar-card">
+            <!-- Date Navigator -->
+            <div class="events-date-nav">
+              <div class="events-date-range">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span id="eventsDateRangeLabel">17 Aug - 01 Sep</span>
+              </div>
+              <div class="events-date-arrows">
+                <button class="events-arrow-btn" id="eventsDatePrev" type="button" aria-label="Previous date range">‹</button>
+                <button class="events-arrow-btn" id="eventsDateNext" type="button" aria-label="Next date range">›</button>
+              </div>
+            </div>
+
+            <!-- Show events from section -->
+            <div class="events-filter-section">
+              <span class="events-filter-title">Show events from</span>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsFilterWatchlist" />
+                <span class="events-check-label">Watchlist</span>
+                <span class="events-count">1 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsFilterHoldings" />
+                <span class="events-check-label">Holdings</span>
+              </label>
+            </div>
+
+            <!-- Type of events section -->
+            <div class="events-filter-section">
+              <span class="events-filter-title">Type of events</span>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeDividend" checked />
+                <span class="events-check-label">Dividend</span>
+                <span class="events-count">145 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeBonus" />
+                <span class="events-check-label">Bonus</span>
+                <span class="events-count">3 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeSplit" />
+                <span class="events-check-label">Split</span>
+                <span class="events-count">6 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeReverseSplit" />
+                <span class="events-check-label">Reverse Split</span>
+                <span class="events-count">0 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeRights" />
+                <span class="events-check-label">Rights</span>
+                <span class="events-count">0 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeMerger" />
+                <span class="events-check-label">Merger</span>
+                <span class="events-count">0 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeDemerger" />
+                <span class="events-check-label">Demerger</span>
+                <span class="events-count">0 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeResults" />
+                <span class="events-check-label">Results</span>
+                <span class="events-count">10 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeBuyback" />
+                <span class="events-check-label">Buyback</span>
+                <span class="events-count">0 events</span>
+              </label>
+              <label class="events-check-row">
+                <input type="checkbox" id="eventsTypeReduction" />
+                <span class="events-check-label">Reduction of capital</span>
+                <span class="events-count">0 events</span>
+              </label>
+            </div>
+          </aside>
+
+          <!-- Right Events Table -->
+          <main class="events-main-card">
+            <div class="events-table-header-row">
+              <span class="events-day-header">17 Aug, Mon <span class="events-today-tag">Today</span></span>
+            </div>
+
+            <div class="ipo-table-responsive">
+              <table class="ipo-table events-table">
+                <thead>
+                  <tr>
+                    <th class="events-th-company">Company</th>
+                    <th class="events-th-event">Events</th>
+                    <th class="events-th-details">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="eventsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         UNDERVALUED STOCKS SCREENER PAGE
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="page-container" id="undervaluedPage" hidden>
+      <div class="undervalued-container">
+        <div class="ipo-header">
+          <div class="ipo-header-left">
+            <a href="#market" class="ipo-back-btn" title="Back to Market">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+              <span>Back to Market</span>
+            </a>
+            <h1 class="ipo-title">Undervalued &amp; Momentum Stocks</h1>
+          </div>
+        </div>
+
+        <!-- Undervalued Stocks Table Card -->
+        <div class="ipo-card">
+          <div class="ipo-table-responsive">
+            <table class="ipo-table undervalued-table">
+              <thead>
+                <tr>
+                  <th class="uv-th-company">Company</th>
+                  <th class="uv-th-price">Market price ⬍</th>
+                  <th class="uv-th-change">1D price change ⬍</th>
+                  <th class="uv-th-volume">1D volume ⌄</th>
+                  <th class="uv-th-vol-diff">1W avg vol diff</th>
+                  <th class="uv-th-52w">52W performance</th>
+                </tr>
+              </thead>
+              <tbody id="undervaluedTableBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CALCULATOR PAGE (Position Size Calculator) -->
     <div class="calculator-page-wrapper" id="calculatorPage" hidden>
       <!-- Stock Calculator -->
@@ -3635,5 +3848,6 @@
   <script src="portfolio.js"></script>
   <script src="strategies.js"></script>
   <script src="ipo.js"></script>
+  <script src="market-products.js"></script>
 </body>
 </html>

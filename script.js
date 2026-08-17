@@ -723,6 +723,11 @@ const PAGES = {
   market: 'market',
   forex: 'market',
   ipo: 'ipo',
+  bonds: 'bonds',
+  dividend: 'dividend',
+  events: 'dividend',
+  undervalued: 'undervalued',
+  'undervalued-stocks': 'undervalued',
   'calculator-stock': 'calculator-stock',
   'calculator-fo': 'calculator-fo',
   'calculator-forex': 'calculator-forex',
@@ -743,6 +748,9 @@ function showPage(pageName) {
   const homePage = document.getElementById('homePage');
   const marketPage = document.getElementById('marketPage');
   const ipoPage = document.getElementById('ipoPage');
+  const bondsPage = document.getElementById('bondsPage');
+  const dividendPage = document.getElementById('dividendPage');
+  const undervaluedPage = document.getElementById('undervaluedPage');
   const calculatorPage = document.getElementById('calculatorPage');
   const strategiesPage = document.getElementById('strategiesPage');
   const portfolioPage = document.getElementById('portfolioPage');
@@ -759,6 +767,9 @@ function showPage(pageName) {
   if (homePage) homePage.hidden = true;
   if (marketPage) marketPage.hidden = true;
   if (ipoPage) ipoPage.hidden = true;
+  if (bondsPage) bondsPage.hidden = true;
+  if (dividendPage) dividendPage.hidden = true;
+  if (undervaluedPage) undervaluedPage.hidden = true;
   if (calculatorPage) calculatorPage.hidden = true;
   if (strategiesPage) strategiesPage.hidden = true;
   if (portfolioPage) portfolioPage.hidden = true;
@@ -784,6 +795,26 @@ function showPage(pageName) {
       if (ipoPage) ipoPage.hidden = false;
       if (typeof window.initIpoDashboard === 'function') {
         setTimeout(window.initIpoDashboard, 20);
+      }
+      break;
+    case 'bonds':
+      if (bondsPage) bondsPage.hidden = false;
+      if (typeof window.initBondsPage === 'function') {
+        setTimeout(window.initBondsPage, 20);
+      }
+      break;
+    case 'dividend':
+    case 'events':
+      if (dividendPage) dividendPage.hidden = false;
+      if (typeof window.initStockEventsPage === 'function') {
+        setTimeout(window.initStockEventsPage, 20);
+      }
+      break;
+    case 'undervalued':
+    case 'undervalued-stocks':
+      if (undervaluedPage) undervaluedPage.hidden = false;
+      if (typeof window.initUndervaluedPage === 'function') {
+        setTimeout(window.initUndervaluedPage, 20);
       }
       break;
     case 'calculator-stock':
