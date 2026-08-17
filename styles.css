@@ -12050,6 +12050,39 @@ html, body {
   margin-bottom: 24px;
 }
 
+.ipo-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ipo-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--clay-raised-sm), var(--clay-edge);
+  transition: all 0.2s ease;
+}
+
+.ipo-back-btn:hover {
+  color: var(--accent);
+  border-color: rgba(224, 169, 78, 0.4);
+  transform: translateX(-2px);
+}
+
+.ipo-back-btn svg {
+  color: var(--accent);
+}
+
 .ipo-title {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 24px;
